@@ -114,7 +114,7 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
     """Search one agency for matching RFPs using Claude with web search."""
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=1000,
             tools=[{"type": "web_search_20250305", "name": "web_search"}],
             system=SYSTEM_PROMPT,
