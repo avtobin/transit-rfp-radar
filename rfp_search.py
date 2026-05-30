@@ -299,13 +299,13 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
 # ── Email sender ──────────────────────────────────────────────────────────────
 
 def send_email(html: str, new_count: int, run_date: str) -> None:
-    smtp_host     = os.environ["SMTP_HOST"]        # e.g. smtp.gmail.com
-    smtp_port     = int(os.environ.get("SMTP_PORT", "587"))
-    smtp_user     = os.environ["SMTP_USER"]        # your Gmail address
-    smtp_password = os.environ["SMTP_PASSWORD"]    # Gmail app password
-    to_address    = os.environ["DIGEST_TO_EMAIL"]  # where to send the digest
+    smtp_host     = os.environ.get("SMTP_HOST", "smtp.gmail.com").strip()
+    smtp_port     = int(os.environ.get("SMTP_PORT", "587").strip())
+    smtp_user     = os.environ["SMTP_USER"].strip()
+    smtp_password = os.environ["SMTP_PASSWORD"].strip()
+    to_address    = os.environ["DIGEST_TO_EMAIL"].strip()
 
-    subject = f"🚌 Transit RFP Digest — {run_date} ({new_count} new)"
+    subject = f"Transit RFP Digest - {run_date} ({new_count} new)"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
