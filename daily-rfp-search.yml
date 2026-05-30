@@ -1,0 +1,48 @@
+name: Daily Transit RFP Search
+
+on:
+  # Runs every day at 7:00 AM Pacific (14:00 UTC, or 15:00 UTC during PDT)
+  schedule:
+    - cron: "0 14 * * *"
+
+  # Also lets you trigger it manually from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write   # needed to commit the updated seen_rfps.json back to the repo
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Run RFP search
+        env:
+          ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
+          SMTP_HOST:          smtp.gmail.com
+          SMTP_PORT:          "587"
+          SMTP_USER:          ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD:      ${{ secrets.SMTP_PASSWORD }}
+          DIGEST_TO_EMAIL:    ${{ secrets.DIGEST_TO_EMAIL }}
+        run: python rfp_search.py
+
+      - name: Commit updated seen_rfps.json
+        run: |
+          git config user.name  "rfp-radar[bot]"
+          git config user.email "rfp-radar[bot]@users.noreply.github.com"
+          git add data/seen_rfps.json
+          git diff --cached --quiet || git commit -m "chore: update seen RFPs [$(date '+%Y-%m-%d')]"
+          git push
