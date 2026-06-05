@@ -106,6 +106,7 @@ CATEGORY_COLORS = {
 }
 
 SEEN_FILE = Path("data/seen_rfps.json")
+RFPS_FILE = Path("data/rfps.json")
 
 SYSTEM_PROMPT = """You are an RFP procurement researcher for Accenture's AEC consulting practice,
 which pursues professional services contracts with transit agencies.
@@ -168,6 +169,17 @@ def make_rfp_id(agency_id: str, agency_name: str, title: str) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 
+def load_all_rfps() -> list:
+    if RFPS_FILE.exists():
+        return json.loads(RFPS_FILE.read_text())
+    return []
+
+
+def save_all_rfps(rfps: list) -> None:
+    RFPS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RFPS_FILE.write_text(json.dumps(rfps, indent=2))
+
+
 def load_seen() -> set:
     if SEEN_FILE.exists():
         return set(json.loads(SEEN_FILE.read_text()))
@@ -186,7 +198,7 @@ def git_push_seen() -> None:
     try:
         subprocess.run(["git", "config", "user.name",  "rfp-radar[bot]"],                          check=True)
         subprocess.run(["git", "config", "user.email", "rfp-radar[bot]@users.noreply.github.com"], check=True)
-        subprocess.run(["git", "add", str(SEEN_FILE)], check=True)
+        subprocess.run(["git", "add", str(SEEN_FILE), str(RFPS_FILE)], check=True)
         result = subprocess.run(["git", "diff", "--cached", "--quiet"])
         if result.returncode == 0:
             print("No changes to seen_rfps.json — skipping push.")
@@ -429,6 +441,17 @@ def main():
     print(f"\n{len(new_rfps)} new RFP(s) found across {len(AGENCIES)} agencies")
 
     save_seen(seen)
+
+    # Merge new RFPs into the full rfps.json for the dashboard
+    all_rfps = load_all_rfps()
+    existing_ids = {r["_id"] for r in all_rfps}
+    for rfp in new_rfps:
+        if rfp["_id"] not in existing_ids:
+            all_rfps.append(rfp)
+    # Sort by found date descending
+    all_rfps.sort(key=lambda r: r.get("_found_date", ""), reverse=True)
+    save_all_rfps(all_rfps)
+
     git_push_seen()
 
     html = build_email_html(new_rfps, run_date, len(AGENCIES))
