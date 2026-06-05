@@ -20,7 +20,6 @@ import anthropic
 # ── Configuration ────────────────────────────────────────────────────────────
 
 AGENCIES = [
-    {"id": "lametro",   "name": "LA Metro",                          "portal": "https://business.metro.net/webcenter/portal/VendorPortal/pages_home/solicitations/openSolicitations"},
     {"id": "octa",      "name": "OCTA",                              "portal": "https://cammnet.octa.net/procurements/"},
     {"id": "lbt",       "name": "Long Beach Transit",                "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
     {"id": "rta",       "name": "Riverside Transit Agency",          "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
