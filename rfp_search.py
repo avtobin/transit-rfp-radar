@@ -20,14 +20,36 @@ import anthropic
 # ── Configuration ────────────────────────────────────────────────────────────
 
 AGENCIES = [
+    # ── Southern California ───────────────────────────────────────────────────
     {"id": "octa",      "name": "OCTA",                              "portal": "https://cammnet.octa.net/procurements/"},
     {"id": "lbt",       "name": "Long Beach Transit",                "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
     {"id": "rta",       "name": "Riverside Transit Agency",          "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
     {"id": "sdmts",     "name": "San Diego MTS",                     "portal": "https://vendors.planetbids.com/portal/14771/bo/bo-search"},
     {"id": "omnitrans", "name": "Omnitrans",                         "portal": "https://vendors.planetbids.com/portal/18046/bo/bo-search"},
     {"id": "nctd",      "name": "North County Transit District",     "portal": "https://vendors.planetbids.com/portal/20134/bo/bo-search"},
+    {"id": "foothill",  "name": "Foothill Transit",                  "portal": "https://vendors.planetbids.com/portal/29905/bo/bo-search"},
+    {"id": "sunline",   "name": "SunLine Transit",                   "portal": "https://vendors.planetbids.com/portal/56419/bo/bo-search"},
+    {"id": "sbcta",     "name": "San Bernardino CTA",                "portal": "https://www.gosbcta.com/doing-business/bids-rfps/"},
+    {"id": "gctd",      "name": "Gold Coast Transit",                "portal": "https://www.gctd.org/contact/doing-business/"},
+    {"id": "metrolink", "name": "Metrolink",                         "portal": "https://metrolinktrains.com/about/doing-business-with-metrolink/procurement-opportunities/"},
+    {"id": "ladot",     "name": "LADOT",                             "portal": "https://www.rampla.org/s/"},
+    # ── Northern California ───────────────────────────────────────────────────
+    {"id": "bart",      "name": "BART",                              "portal": "https://suppliers.bart.gov/psp/BRFPV91/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL?active=P"},
+    {"id": "vta",       "name": "VTA (Santa Clara)",                 "portal": "https://procurement.opengov.com/portal/vta?departmentId=all&status=open&page=1&limit=50&sortField=proposalDeadline&sortDirection=DESC"},
+    {"id": "actransit", "name": "AC Transit",                        "portal": "https://actransit.bonfirehub.com/portal/?tab=openOpportunities"},
+    # ── Pacific Northwest ─────────────────────────────────────────────────────
     {"id": "kcmetro",   "name": "King County Metro",                 "portal": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151"},
     {"id": "trimet",    "name": "TriMet",                            "portal": "https://bidlocker.us/a/trimet/BidLocker"},
+    {"id": "soundtransit", "name": "Sound Transit",                  "portal": "https://www.biddingo.com/soundtransit"},
+    {"id": "commtransit",  "name": "Community Transit",              "portal": "https://commtrans.procureware.com/Bids"},
+    # ── Mountain / Southwest ──────────────────────────────────────────────────
+    {"id": "rtd",       "name": "Denver RTD",                        "portal": "https://procurement.opengov.com/portal/rtd-denver?departmentId=all&status=open"},
+    # ── Texas ─────────────────────────────────────────────────────────────────
+    {"id": "houston",   "name": "Houston Metro",                     "portal": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities"},
+    # ── Mid-Atlantic / Northeast ──────────────────────────────────────────────
+    {"id": "wmata",     "name": "WMATA",                             "portal": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL"},
+    {"id": "septa",     "name": "SEPTA",                             "portal": "https://wwww.septa.org/procurement/bids/"},
+    {"id": "prt",       "name": "Pittsburgh PRT",                    "portal": "https://www.rideprt.org/business-center/procurement/bids-and-rfps/"},
     {"id": "nymta_cd",  "name": "NY MTA — Construction & Development", "portal": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities"},
     {"id": "nymta_gen", "name": "NY MTA — General Procurement",      "portal": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities"},
     {"id": "nymta_hq",  "name": "NY MTA — Headquarters",             "portal": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters"},
@@ -35,7 +57,6 @@ AGENCIES = [
     {"id": "nymta_lirr","name": "NY MTA — Long Island Rail Road",    "portal": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road"},
     {"id": "mbta",      "name": "Boston MBTA",                       "portal": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/"},
     {"id": "njtransit", "name": "NJ Transit",                        "portal": "https://www.njtransit.com/procurement/calendar"},
-    {"id": "ladot",     "name": "LADOT",                             "portal": "https://www.rampla.org/s/"},
 ]
 
 KEYWORDS = (
