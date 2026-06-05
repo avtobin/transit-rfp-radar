@@ -10,6 +10,7 @@ import json
 import hashlib
 import smtplib
 import time
+import subprocess
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -19,19 +20,19 @@ import anthropic
 # ── Configuration ────────────────────────────────────────────────────────────
 
 AGENCIES = [
-    {"id": "lametro",   "name": "LA Metro",                   "portal": "vendor.metro.net"},
-    {"id": "octa",      "name": "OCTA",                       "portal": "octa.net/procurement"},
-    {"id": "lbt",       "name": "Long Beach Transit",         "portal": "ridelbt.com"},
-    {"id": "rta",       "name": "Riverside Transit Agency",   "portal": "riversidetransit.com"},
-    {"id": "sdmts",     "name": "San Diego MTS",              "portal": "sdmts.com"},
-    {"id": "omnitrans", "name": "Omnitrans",                  "portal": "omnitrans.org"},
+    {"id": "lametro",   "name": "LA Metro",                      "portal": "vendor.metro.net"},
+    {"id": "octa",      "name": "OCTA",                          "portal": "octa.net/procurement"},
+    {"id": "lbt",       "name": "Long Beach Transit",            "portal": "ridelbt.com"},
+    {"id": "rta",       "name": "Riverside Transit Agency",      "portal": "riversidetransit.com"},
+    {"id": "sdmts",     "name": "San Diego MTS",                 "portal": "sdmts.com"},
+    {"id": "omnitrans", "name": "Omnitrans",                     "portal": "omnitrans.org"},
     {"id": "nctd",      "name": "North County Transit District", "portal": "gonctd.com"},
-    {"id": "kcmetro",   "name": "King County Metro",          "portal": "metro.kingcounty.gov"},
-    {"id": "trimet",    "name": "TriMet",                     "portal": "trimet.org"},
-    {"id": "nymta",     "name": "New York MTA",               "portal": "mta.info"},
-    {"id": "mbta",      "name": "Boston MBTA",                "portal": "mbta.com"},
-    {"id": "njtransit", "name": "NJ Transit",                 "portal": "njtransit.com"},
-    {"id": "ladot",     "name": "LADOT",                      "portal": "ladot.lacity.org"},
+    {"id": "kcmetro",   "name": "King County Metro",             "portal": "metro.kingcounty.gov"},
+    {"id": "trimet",    "name": "TriMet",                        "portal": "trimet.org"},
+    {"id": "nymta",     "name": "New York MTA",                  "portal": "mta.info"},
+    {"id": "mbta",      "name": "Boston MBTA",                   "portal": "mbta.com"},
+    {"id": "njtransit", "name": "NJ Transit",                    "portal": "njtransit.com"},
+    {"id": "ladot",     "name": "LADOT",                         "portal": "ladot.lacity.org"},
 ]
 
 KEYWORDS = (
@@ -108,6 +109,27 @@ def save_seen(seen: set) -> None:
     SEEN_FILE.write_text(json.dumps(sorted(seen), indent=2))
 
 
+# ── Git helpers ───────────────────────────────────────────────────────────────
+
+def git_push_seen() -> None:
+    """Pull latest then push updated seen_rfps.json to avoid conflicts."""
+    try:
+        subprocess.run(["git", "config", "user.name", "rfp-radar[bot]"], check=True)
+        subprocess.run(["git", "config", "user.email", "rfp-radar[bot]@users.noreply.github.com"], check=True)
+        subprocess.run(["git", "add", str(SEEN_FILE)], check=True)
+        result = subprocess.run(["git", "diff", "--cached", "--quiet"])
+        if result.returncode == 0:
+            print("No changes to seen_rfps.json — skipping push.")
+            return
+        subprocess.run(["git", "commit", "-m", "Update seen_rfps.json [skip ci]"], check=True)
+        # Pull with rebase before pushing to avoid conflicts from concurrent runs
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
+        subprocess.run(["git", "push", "origin", "main"], check=True)
+        print("seen_rfps.json pushed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git push warning (non-fatal): {e}")
+
+
 # ── Anthropic API call ────────────────────────────────────────────────────────
 
 def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
@@ -128,7 +150,7 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
             }]
         )
 
-        # Extract text blocks from response (web search returns mixed content blocks)
+        # Extract text blocks from response
         text = "".join(
             block.text for block in response.content
             if hasattr(block, "text")
@@ -150,9 +172,9 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
 
         # Attach agency metadata and generate stable IDs
         for rfp in rfps:
-            rfp["agency"] = agency["name"]
-            rfp["agency_id"] = agency["id"]
-            rfp["_id"] = make_rfp_id(agency["name"], rfp.get("title", ""))
+            rfp["agency"]      = agency["name"]
+            rfp["agency_id"]   = agency["id"]
+            rfp["_id"]         = make_rfp_id(agency["name"], rfp.get("title", ""))
             rfp["_found_date"] = datetime.now().strftime("%Y-%m-%d")
 
         print(f"  [{agency['name']}] {len(rfps)} RFP(s) found")
@@ -169,13 +191,12 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
 # ── Email builder ─────────────────────────────────────────────────────────────
 
 def build_rfp_row(rfp: dict) -> str:
-    cat = rfp.get("category", "pm")
-    colors = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["pm"])
-    cat_label = CATEGORY_LABELS.get(cat, cat)
-    deadline = rfp.get("deadline", "Not specified")
-    rfp_num = rfp.get("rfp_number", "Not specified")
-    url = rfp.get("url", "#")
-
+    cat        = rfp.get("category", "pm")
+    colors     = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["pm"])
+    cat_label  = CATEGORY_LABELS.get(cat, cat)
+    deadline   = rfp.get("deadline", "Not specified")
+    rfp_num    = rfp.get("rfp_number", "Not specified")
+    url        = rfp.get("url", "#")
     deadline_color = "#993C1D" if deadline != "Not specified" else "#888"
 
     return f"""
@@ -213,7 +234,7 @@ def build_rfp_row(rfp: dict) -> str:
 
 
 def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int) -> str:
-    count = len(new_rfps)
+    count     = len(new_rfps)
     rows_html = "".join(build_rfp_row(r) for r in new_rfps) if new_rfps else ""
 
     if new_rfps:
@@ -252,40 +273,25 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
 <body style="margin:0;padding:0;background:#f4f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:720px;margin:32px auto;background:#fff;border-radius:10px;
               overflow:hidden;border:1px solid #e0e0d8;">
-
-    <!-- Header -->
     <div style="background:#1a1a1a;padding:24px 28px;">
       <h1 style="color:#fff;margin:0;font-size:18px;font-weight:500;letter-spacing:-0.01em;">
         🚌 Transit RFP Radar
       </h1>
       <p style="color:#aaa;margin:6px 0 0;font-size:13px;">{run_date}</p>
     </div>
-
-    <!-- Stats bar -->
     <div style="padding:18px 28px;background:#f8f8f4;border-bottom:1px solid #e8e8e4;
                 display:flex;gap:32px;">
       <div>
-        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">
-          New RFPs
-        </div>
-        <div style="font-size:28px;font-weight:600;color:{'#185FA5' if count > 0 else '#1a1a1a'};">
-          {count}
-        </div>
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">New RFPs</div>
+        <div style="font-size:28px;font-weight:600;color:{'#185FA5' if count > 0 else '#1a1a1a'};">{count}</div>
       </div>
       <div>
-        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">
-          Agencies searched
-        </div>
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Agencies searched</div>
         <div style="font-size:28px;font-weight:600;color:#1a1a1a;">{agencies_searched}</div>
       </div>
     </div>
-
-    <!-- RFP table or empty state -->
     {body_content}
-
-    <!-- Footer -->
-    <div style="padding:16px 28px;border-top:1px solid #e8e8e4;font-size:11px;color:#aaa;
-                line-height:1.6;">
+    <div style="padding:16px 28px;border-top:1px solid #e8e8e4;font-size:11px;color:#aaa;line-height:1.6;">
       Monitoring: LA Metro · OCTA · Long Beach Transit · Riverside Transit Agency ·
       San Diego MTS · Omnitrans · NCTD · King County Metro · TriMet ·
       NY MTA · MBTA · NJ Transit · LADOT
@@ -303,22 +309,23 @@ def send_email(html: str, new_count: int, run_date: str) -> None:
     smtp_port     = int(os.environ.get("SMTP_PORT", "587").strip())
     smtp_user     = os.environ["SMTP_USER"].strip()
     smtp_password = os.environ["SMTP_PASSWORD"].strip()
-    to_address = os.environ["DIGEST_TO_EMAIL"].strip().split(",")
+    to_addresses  = [a.strip() for a in os.environ["DIGEST_TO_EMAIL"].split(",")]
+
     subject = f"Transit RFP Digest - {run_date} ({new_count} new)"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"]    = smtp_user
-    msg["To"]      = to_address
-    msg["To"] = ", ".join(to_address)
+    msg["To"]      = ", ".join(to_addresses)
+    msg.attach(MIMEText(html, "html"))
 
     with smtplib.SMTP(smtp_host, smtp_port) as server:
         server.ehlo()
         server.starttls()
         server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, to_address, msg.as_string())
+        server.sendmail(smtp_user, to_addresses, msg.as_string())
 
-    print(f"Email sent to {to_address}")
+    print(f"Email sent to {', '.join(to_addresses)}")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -349,17 +356,14 @@ def main():
             else:
                 print(f"    – Already seen: {rfp.get('title', 'Untitled')}")
 
-        # Be polite to the API between agencies
         if i < len(AGENCIES) - 1:
             time.sleep(2)
 
     print(f"\n{len(new_rfps)} new RFP(s) found across {len(AGENCIES)} agencies")
 
-    # Save updated seen list
     save_seen(seen)
-    print(f"Seen store updated ({len(seen)} total)")
+    git_push_seen()
 
-    # Build and send email
     html = build_email_html(new_rfps, run_date, len(AGENCIES))
     send_email(html, len(new_rfps), run_date)
 
