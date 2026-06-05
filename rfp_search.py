@@ -206,7 +206,7 @@ Return ONLY valid JSON — no markdown, no backticks, no explanation. Format:
       "issue_date": "issue date as Month DD YYYY, or Not specified",
       "category": "pm|cm|adv|zev|micro|p3|om|grant|asset|data|proc",
       "rfp_number": "RFP/IFB/RFQ number, or Not specified",
-      "url": "direct URL to RFP posting or procurement page"
+      "url": "DIRECT URL to the specific RFP document or posting page — NOT the general procurement portal homepage. Search for the RFP number or title to find the exact PDF or detail page URL. If you cannot find a direct link, use the procurement portal URL as a fallback."
     }
   ]
 }
@@ -294,7 +294,158 @@ def git_push_seen() -> None:
         print(f"Git push warning (non-fatal): {e}")
 
 
-# ── Anthropic API call ─────────────────────────────────────────────────────────
+import requests
+
+# ── PlanetBids scraper ─────────────────────────────────────────────────────────
+
+# Portal IDs extracted from the vendor portal URLs (cid parameter)
+PLANETBIDS_PORTALS = {
+    "lbt":       28908,   # Long Beach Transit
+    "rta":       55483,   # Riverside Transit Agency
+    "sdmts":     14771,   # San Diego MTS
+    "omnitrans": 18046,   # Omnitrans
+    "nctd":      20134,   # North County Transit District
+    "foothill":  29905,   # Foothill Transit
+    "sunline":   56419,   # SunLine Transit
+}
+
+PLANETBIDS_API = "https://api-external.prod.planetbids.com/papi/bids"
+
+# Keywords to match against PlanetBids results (lowercase)
+SCRAPE_KEYWORDS = [
+    "program management", "project management", "construction management",
+    "advisory", "consulting", "zero emission", "zeb", "battery electric",
+    "electrification", "ev charging", "evse", "microgrid", "renewable energy",
+    "energy storage", "owner's representative", "project controls",
+    "p3", "public-private", "alternative delivery", "operations and maintenance",
+    "grant management", "federal funding", "fta grant", "asset management",
+    "cmms", "eam", "data analytics", "performance reporting", "procurement advisory",
+]
+
+
+def scrape_planetbids(client: anthropic.Anthropic, agency: dict) -> list[dict]:
+    """
+    Directly scrape the PlanetBids API for an agency's open bids,
+    filter by keywords, then use Claude to categorize and summarize matches.
+    No web search credits used.
+    """
+    cid = PLANETBIDS_PORTALS.get(agency["id"])
+    if not cid:
+        return []
+
+    try:
+        params = {
+            "bid_type_id": 0,
+            "cid": cid,
+            "dept_id": 0,
+            "due_date_from": "",
+            "due_date_to": "",
+            "keyword": "",
+            "page": 1,
+            "per_page": 50,
+            "sort_by": "",
+            "sort_order": -1,
+            "stage_id": 0,
+        }
+        headers = {
+            "Accept": "application/json",
+            "Origin": "https://vendors.planetbids.com",
+            "Referer": f"https://vendors.planetbids.com/portal/{cid}/bo/bo-search",
+        }
+        resp = requests.get(PLANETBIDS_API, params=params, headers=headers, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+
+        # PlanetBids returns bids in a "vendor_bids" or "bids" key
+        raw_bids = data.get("vendor_bids") or data.get("bids") or []
+        if not raw_bids and isinstance(data, list):
+            raw_bids = data
+
+        print(f"  [{agency['name']}] PlanetBids API returned {len(raw_bids)} total bids")
+
+        # Filter to bids matching our keywords
+        matched = []
+        for bid in raw_bids:
+            title = (bid.get("title") or bid.get("bid_title") or bid.get("name") or "").lower()
+            desc  = (bid.get("description") or bid.get("bid_description") or "").lower()
+            text  = title + " " + desc
+            if any(kw in text for kw in SCRAPE_KEYWORDS):
+                matched.append(bid)
+
+        if not matched:
+            print(f"  [{agency['name']}] 0 keyword matches")
+            return []
+
+        print(f"  [{agency['name']}] {len(matched)} keyword match(es) — sending to Claude for categorization")
+
+        # Build a compact summary for Claude to categorize
+        bid_summaries = []
+        for b in matched[:5]:  # cap at 5
+            bid_id    = b.get("bid_id") or b.get("id") or ""
+            title     = b.get("title") or b.get("bid_title") or b.get("name") or "Untitled"
+            desc      = b.get("description") or b.get("bid_description") or ""
+            due_date  = b.get("due_date") or b.get("bid_due_date") or b.get("close_date") or ""
+            bid_num   = b.get("bid_number") or b.get("number") or ""
+            detail_url = f"https://vendors.planetbids.com/portal/{cid}/bo/bo-detail/{bid_id}" if bid_id else agency["portal"]
+            bid_summaries.append({
+                "title": title,
+                "description": desc[:300],
+                "due_date": due_date,
+                "bid_number": bid_num,
+                "url": detail_url,
+            })
+
+        # Ask Claude to categorize and summarize — no web search needed
+        prompt = (
+            f"Here are {len(bid_summaries)} procurement opportunities from {agency['name']}. "
+            f"For each one, provide a category code and 2-3 sentence summary.\n\n"
+            f"Bids:\n{json.dumps(bid_summaries, indent=2)}\n\n"
+            f"Return ONLY valid JSON:\n"
+            f'{{"rfps": [{{"title": "...", "summary": "...", "deadline": "Month DD YYYY or Not specified", '
+            f'"issue_date": "Not specified", "category": "pm|cm|adv|zev|micro|p3|om|grant|asset|data|proc", '
+            f'"rfp_number": "...", "url": "..."}}]}}'
+        )
+
+        response = client.messages.create(
+            model="claude-sonnet-4-5",
+            max_tokens=1000,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        text = "".join(block.text for block in response.content if hasattr(block, "text"))
+        clean = text.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+
+        parsed = json.loads(clean.strip())
+        rfps = parsed.get("rfps", [])
+
+        for rfp in rfps:
+            rfp["agency"]      = agency["name"]
+            rfp["agency_id"]   = agency["id"]
+            rfp["_id"]         = make_rfp_id(agency["id"], agency["name"], rfp.get("title", ""))
+            rfp["_found_date"] = datetime.now().strftime("%Y-%m-%d")
+            rfp["fit"]         = score_fit(rfp)
+            rfp["_source"]     = "planetbids_api"
+
+        print(f"  [{agency['name']}] {len(rfps)} RFP(s) extracted")
+        return rfps
+
+    except requests.RequestException as e:
+        print(f"  [{agency['name']}] PlanetBids API error: {e} — falling back to web search")
+        return search_agency(client, agency)
+    except json.JSONDecodeError as e:
+        print(f"  [{agency['name']}] JSON parse error: {e}")
+        return []
+    except Exception as e:
+        print(f"  [{agency['name']}] Error: {e}")
+        return []
+
+
+
 
 def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
     """Search one agency for matching RFPs using Claude with web search."""
@@ -309,7 +460,8 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
                 "content": (
                     f"Search for active RFPs from {agency['name']} "
                     f"(procurement portal: {agency['portal']}) "
-                    f"matching these keywords: {KEYWORDS}"
+                    f"matching these keywords: {KEYWORDS}. "
+                    f"For each RFP found, search specifically for the direct URL to that RFP's document or detail page — not just the portal homepage."
                 )
             }]
         )
@@ -521,7 +673,11 @@ def main():
 
     for i, agency in enumerate(AGENCIES):
         print(f"[{i+1}/{len(AGENCIES)}] Searching {agency['name']}...")
-        rfps = search_agency(client, agency)
+
+        if agency["id"] in PLANETBIDS_PORTALS:
+            rfps = scrape_planetbids(client, agency)
+        else:
+            rfps = search_agency(client, agency)
 
         for rfp in rfps:
             if rfp["_id"] not in seen:
