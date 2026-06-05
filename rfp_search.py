@@ -383,7 +383,7 @@ def main():
                 print(f"    – Already seen: {rfp.get('title', 'Untitled')}")
 
         if i < len(AGENCIES) - 1:
-            time.sleep(2)
+            time.sleep(8)
 
     print(f"\n{len(new_rfps)} new RFP(s) found across {len(AGENCIES)} agencies")
 
