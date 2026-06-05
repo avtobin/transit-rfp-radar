@@ -17,6 +17,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 import anthropic
+import requests
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
@@ -293,8 +294,6 @@ def git_push_seen() -> None:
     except subprocess.CalledProcessError as e:
         print(f"Git push warning (non-fatal): {e}")
 
-
-import requests
 
 # ── PlanetBids scraper ─────────────────────────────────────────────────────────
 
