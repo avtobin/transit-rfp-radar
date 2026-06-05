@@ -64,6 +64,89 @@ AGENCIES = [
 # appearing on multiple MTA pages is not counted twice.
 MTA_FAMILY = {"nymta_cd", "nymta_gen", "nymta_hq", "nymta_nyct", "nymta_lirr"}
 
+# ── Fit scoring ───────────────────────────────────────────────────────────────
+
+PRIORITY_AGENCIES = {
+    "octa", "lbt", "sdmts", "ladot",           # Southern California
+    "kcmetro", "soundtransit",                  # Pacific Northwest
+    "nymta_cd", "nymta_gen", "nymta_hq",        # NY MTA
+    "nymta_nyct", "nymta_lirr",
+}
+
+# Keywords that signal ZEV/EV work regardless of category
+ZEV_KEYWORDS = [
+    "zero emission", "zeb", "battery electric", "ev charging", "evse",
+    "electrification", "inductive charg", "charging infrastructure",
+    "electric bus", "electric vehicle", "ev infrastructure",
+]
+
+# Keywords that signal actual design/construction (Monitor only)
+CONSTRUCTION_KEYWORDS = [
+    "design-build", "design build", "general contractor", "gc ", "ifb",
+    "invitation for bid", "cmar", "construction contract", "prime contractor",
+    "civil construction", "structural", "mechanical contractor",
+]
+
+STRONG_FIT_CATEGORIES = {"pm", "cm", "p3", "grant"}
+GOOD_FIT_CATEGORIES   = {"adv", "asset", "data"}
+MONITOR_CATEGORIES    = {"om", "proc", "micro"}
+
+
+def score_fit(rfp: dict) -> str:
+    """
+    Return 'strong', 'good', or 'monitor' fit score for an RFP.
+
+    Rules (in priority order):
+    1. Any ZEV/EV keyword in title or summary → Strong Fit
+    2. Strong-fit category at a priority agency → Strong Fit
+    3. Strong-fit category at any agency → Good Fit
+    4. Good-fit category at a priority agency → Good Fit
+    5. Construction/design keywords → Monitor (informational)
+    6. Everything else → Monitor
+    """
+    title   = (rfp.get("title",   "") or "").lower()
+    summary = (rfp.get("summary", "") or "").lower()
+    text    = title + " " + summary
+    cat     = rfp.get("category", "adv")
+    agency  = rfp.get("agency_id", "")
+
+    # Rule 1 — ZEV keywords anywhere → always Strong
+    if any(kw in text for kw in ZEV_KEYWORDS):
+        return "strong"
+
+    # Rule 2 — Strong category + priority agency → Strong
+    if cat in STRONG_FIT_CATEGORIES and agency in PRIORITY_AGENCIES:
+        return "strong"
+
+    # Rule 3 — Strong category at any agency → Good
+    if cat in STRONG_FIT_CATEGORIES:
+        return "good"
+
+    # Rule 4 — Good category at priority agency → Good
+    if cat in GOOD_FIT_CATEGORIES and agency in PRIORITY_AGENCIES:
+        return "good"
+
+    # Rule 5 — Construction/design signals → Monitor (we want to see these)
+    if any(kw in text for kw in CONSTRUCTION_KEYWORDS):
+        return "monitor"
+
+    # Rule 6 — Everything else → Monitor
+    return "monitor"
+
+
+FIT_LABELS = {
+    "strong": "Strong Fit",
+    "good":   "Good Fit",
+    "monitor":"Monitor",
+}
+
+FIT_COLORS = {
+    "strong": {"bg": "#EAF3DE", "text": "#27500A"},
+    "good":   {"bg": "#FAEEDA", "text": "#633806"},
+    "monitor":{"bg": "#F1EFE8", "text": "#5F5E5A"},
+}
+
+
 KEYWORDS = (
     "program management OR project management OR construction management OR "
     "advisory OR consulting OR zero emission OR ZEB OR battery electric OR "
@@ -254,6 +337,7 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
             rfp["agency_id"]   = agency["id"]
             rfp["_id"]         = make_rfp_id(agency["id"], agency["name"], rfp.get("title", ""))
             rfp["_found_date"] = datetime.now().strftime("%Y-%m-%d")
+            rfp["fit"]         = score_fit(rfp)
 
         print(f"  [{agency['name']}] {len(rfps)} RFP(s) found")
         return rfps
@@ -269,21 +353,31 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
 # ── Email builder ──────────────────────────────────────────────────────────────
 
 def build_rfp_row(rfp: dict) -> str:
-    cat           = rfp.get("category", "adv")
-    colors        = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
-    cat_label     = CATEGORY_LABELS.get(cat, cat)
-    deadline      = rfp.get("deadline", "Not specified")
-    rfp_num       = rfp.get("rfp_number", "Not specified")
-    url           = rfp.get("url", "#")
+    cat            = rfp.get("category", "adv")
+    colors         = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
+    cat_label      = CATEGORY_LABELS.get(cat, cat)
+    deadline       = rfp.get("deadline", "Not specified")
+    rfp_num        = rfp.get("rfp_number", "Not specified")
+    url            = rfp.get("url", "#")
     deadline_color = "#993C1D" if deadline != "Not specified" else "#888"
+    fit            = rfp.get("fit", "monitor")
+    fit_colors     = FIT_COLORS.get(fit, FIT_COLORS["monitor"])
+    fit_label      = FIT_LABELS.get(fit, "Monitor")
 
     return f"""
     <tr>
-      <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;width:150px;">
+      <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;width:160px;">
         <span style="display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;
-                     font-weight:600;background:{colors['bg']};color:{colors['text']};">
-          {cat_label}
+                     font-weight:700;background:{fit_colors['bg']};color:{fit_colors['text']};
+                     letter-spacing:0.02em;">
+          {fit_label}
         </span>
+        <div style="margin-top:5px;">
+          <span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;
+                       font-weight:600;background:{colors['bg']};color:{colors['text']};">
+            {cat_label}
+          </span>
+        </div>
         <div style="margin-top:6px;font-size:12px;color:#555;font-weight:500;">
           {rfp.get('agency', '')}
         </div>
@@ -313,7 +407,9 @@ def build_rfp_row(rfp: dict) -> str:
 
 def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int) -> str:
     count     = len(new_rfps)
-    rows_html = "".join(build_rfp_row(r) for r in new_rfps) if new_rfps else ""
+    fit_order = {"strong": 0, "good": 1, "monitor": 2}
+    sorted_rfps = sorted(new_rfps, key=lambda r: fit_order.get(r.get("fit", "monitor"), 2))
+    rows_html = "".join(build_rfp_row(r) for r in sorted_rfps) if new_rfps else ""
 
     if new_rfps:
         body_content = f"""
@@ -322,7 +418,7 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
             <tr style="background:#fafafa;">
               <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;
                          text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e8e8e4;">
-                Category / Agency
+                Fit / Category / Agency
               </td>
               <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;
                          text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e8e8e4;">
