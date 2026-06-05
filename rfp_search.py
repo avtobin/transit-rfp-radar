@@ -20,19 +20,19 @@ import anthropic
 # ── Configuration ────────────────────────────────────────────────────────────
 
 AGENCIES = [
-    {"id": "lametro",   "name": "LA Metro",                      "portal": "vendor.metro.net"},
-    {"id": "octa",      "name": "OCTA",                          "portal": "octa.net/procurement"},
-    {"id": "lbt",       "name": "Long Beach Transit",            "portal": "ridelbt.com"},
-    {"id": "rta",       "name": "Riverside Transit Agency",      "portal": "riversidetransit.com"},
-    {"id": "sdmts",     "name": "San Diego MTS",                 "portal": "sdmts.com"},
-    {"id": "omnitrans", "name": "Omnitrans",                     "portal": "omnitrans.org"},
-    {"id": "nctd",      "name": "North County Transit District", "portal": "gonctd.com"},
-    {"id": "kcmetro",   "name": "King County Metro",             "portal": "metro.kingcounty.gov"},
-    {"id": "trimet",    "name": "TriMet",                        "portal": "trimet.org"},
-    {"id": "nymta",     "name": "New York MTA",                  "portal": "mta.info"},
-    {"id": "mbta",      "name": "Boston MBTA",                   "portal": "mbta.com"},
-    {"id": "njtransit", "name": "NJ Transit",                    "portal": "njtransit.com"},
-    {"id": "ladot",     "name": "LADOT",                         "portal": "ladot.lacity.org"},
+    {"id": "lametro",   "name": "LA Metro",                      "portal": "business.metro.net/VendorPortal/faces/home/solicitations/openSolicitations"},
+    {"id": "octa",      "name": "OCTA",                          "portal": "cammnet.octa.net/procurements"},
+    {"id": "lbt",       "name": "Long Beach Transit",            "portal": "vendors.planetbids.com/portal/28908/bo/bo-search"},
+    {"id": "rta",       "name": "Riverside Transit Agency",      "portal": "riversidetransit.com/about/doing-business-with-rta"},
+    {"id": "sdmts",     "name": "San Diego MTS",                 "portal": "sdmts.com/business-center/procurement"},
+    {"id": "omnitrans", "name": "Omnitrans",                     "portal": "procurement.opengov.com/portal/omnitrans"},
+    {"id": "nctd",      "name": "North County Transit District", "portal": "vendors.planetbids.com/portal/nctd"},
+    {"id": "kcmetro",   "name": "King County Metro",             "portal": "kingcounty.gov/en/dept/finance-business-operations/procurement/for-business/solicitation-resources"},
+    {"id": "trimet",    "name": "TriMet",                        "portal": "bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=TriMet"},
+    {"id": "nymta",     "name": "New York MTA",                  "portal": "mta.info/doing-business-with-us/procurement/current-opportunities"},
+    {"id": "mbta",      "name": "Boston MBTA",                   "portal": "bidexpress.com/businesses/83754/home"},
+    {"id": "njtransit", "name": "NJ Transit",                    "portal": "njtransit.com/procurement"},
+    {"id": "ladot",     "name": "LADOT",                         "portal": "ladot.lacity.org/doing-business"},
 ]
 
 KEYWORDS = (
