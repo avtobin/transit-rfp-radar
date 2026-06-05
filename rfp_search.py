@@ -20,19 +20,23 @@ import anthropic
 # ── Configuration ────────────────────────────────────────────────────────────
 
 AGENCIES = [
-    {"id": "lametro",   "name": "LA Metro",                      "portal": "business.metro.net/VendorPortal/faces/home/solicitations/openSolicitations"},
-    {"id": "octa",      "name": "OCTA",                          "portal": "cammnet.octa.net/procurements"},
-    {"id": "lbt",       "name": "Long Beach Transit",            "portal": "vendors.planetbids.com/portal/28908/bo/bo-search"},
-    {"id": "rta",       "name": "Riverside Transit Agency",      "portal": "riversidetransit.com/about/doing-business-with-rta"},
-    {"id": "sdmts",     "name": "San Diego MTS",                 "portal": "sdmts.com/business-center/procurement"},
-    {"id": "omnitrans", "name": "Omnitrans",                     "portal": "procurement.opengov.com/portal/omnitrans"},
-    {"id": "nctd",      "name": "North County Transit District", "portal": "vendors.planetbids.com/portal/nctd"},
-    {"id": "kcmetro",   "name": "King County Metro",             "portal": "kingcounty.gov/en/dept/finance-business-operations/procurement/for-business/solicitation-resources"},
-    {"id": "trimet",    "name": "TriMet",                        "portal": "bids.sciquest.com/apps/Router/PublicEvent?CustomerOrg=TriMet"},
-    {"id": "nymta",     "name": "New York MTA",                  "portal": "mta.info/doing-business-with-us/procurement/current-opportunities"},
-    {"id": "mbta",      "name": "Boston MBTA",                   "portal": "bidexpress.com/businesses/83754/home"},
-    {"id": "njtransit", "name": "NJ Transit",                    "portal": "njtransit.com/procurement"},
-    {"id": "ladot",     "name": "LADOT",                         "portal": "ladot.lacity.org/doing-business"},
+    {"id": "lametro",   "name": "LA Metro",                          "portal": "https://business.metro.net/webcenter/portal/VendorPortal/pages_home/solicitations/openSolicitations"},
+    {"id": "octa",      "name": "OCTA",                              "portal": "https://cammnet.octa.net/procurements/"},
+    {"id": "lbt",       "name": "Long Beach Transit",                "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
+    {"id": "rta",       "name": "Riverside Transit Agency",          "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
+    {"id": "sdmts",     "name": "San Diego MTS",                     "portal": "https://vendors.planetbids.com/portal/14771/bo/bo-search"},
+    {"id": "omnitrans", "name": "Omnitrans",                         "portal": "https://vendors.planetbids.com/portal/18046/bo/bo-search"},
+    {"id": "nctd",      "name": "North County Transit District",     "portal": "https://vendors.planetbids.com/portal/20134/bo/bo-search"},
+    {"id": "kcmetro",   "name": "King County Metro",                 "portal": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151"},
+    {"id": "trimet",    "name": "TriMet",                            "portal": "https://bidlocker.us/a/trimet/BidLocker"},
+    {"id": "nymta_cd",  "name": "NY MTA — Construction & Development", "portal": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities"},
+    {"id": "nymta_gen", "name": "NY MTA — General Procurement",      "portal": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities"},
+    {"id": "nymta_hq",  "name": "NY MTA — Headquarters",             "portal": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters"},
+    {"id": "nymta_nyct","name": "NY MTA — NYC Transit",              "portal": "https://www.mta.info/doing-business-with-us/procurement/new-york-city-transit"},
+    {"id": "nymta_lirr","name": "NY MTA — Long Island Rail Road",    "portal": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road"},
+    {"id": "mbta",      "name": "Boston MBTA",                       "portal": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/"},
+    {"id": "njtransit", "name": "NJ Transit",                        "portal": "https://www.njtransit.com/procurement/calendar"},
+    {"id": "ladot",     "name": "LADOT",                             "portal": "https://www.rampla.org/s/"},
 ]
 
 KEYWORDS = (
