@@ -3,7 +3,7 @@ name: Daily Transit RFP Search
 on:
   # Runs every day at 7:00 AM Pacific (14:00 UTC, or 15:00 UTC during PDT)
   schedule:
-    - cron: "0 14 * * *"
+    - cron: "0 15 * * *"
 
   # Also lets you trigger it manually from the GitHub Actions tab
   workflow_dispatch:
