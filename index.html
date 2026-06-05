@@ -143,7 +143,15 @@
   .rfp-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
   @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:none; } }
 
-  .rfp-card.urgent-card { border-left: 3px solid var(--urgent); }
+  .fit-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 9px;
+    border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .fit-strong { background: #EAF3DE; color: #27500A; }
+  .fit-good   { background: #FAEEDA; color: #633806; }
+  .fit-monitor{ background: #F1EFE8; color: #5F5E5A; }
+
+  .rfp-card.fit-strong-card { border-left: 3px solid #3B6D11; }
 
   .rfp-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 7px; }
 
@@ -255,9 +263,16 @@
     <select id="agency-filter" onchange="renderList()">
       <option value="">All agencies</option>
     </select>
+    <select id="fit-filter" onchange="renderList()">
+      <option value="">All fit levels</option>
+      <option value="strong">Strong Fit</option>
+      <option value="good">Good Fit</option>
+      <option value="monitor">Monitor</option>
+    </select>
     <select id="sort" onchange="renderList()">
       <option value="date-desc">Newest first</option>
       <option value="date-asc">Oldest first</option>
+      <option value="fit">By fit score</option>
       <option value="deadline">By deadline</option>
     </select>
   </div>
@@ -274,7 +289,15 @@
 </div>
 
 <script>
-const DATA_URL = "https://raw.githubusercontent.com/avtobin/transit-rfp-radar/main/data/seen_rfps.json";
+const DATA_URL = "https://raw.githubusercontent.com/avtobin/transit-rfp-radar/main/data/rfps.json";
+
+const FIT_META = {
+  strong:  { label: "Strong Fit", cls: "fit-strong" },
+  good:    { label: "Good Fit",   cls: "fit-good"   },
+  monitor: { label: "Monitor",    cls: "fit-monitor" },
+};
+
+const FIT_ORDER = { strong: 0, good: 1, monitor: 2 };
 
 const CAT_META = {
   pm:    { label: "Program / Project Mgmt", bg: "#EEEDFE", text: "#26215C" },
@@ -355,6 +378,7 @@ function buildFilters() {
 function clearFilters() {
   document.getElementById("search").value = "";
   document.getElementById("agency-filter").value = "";
+  document.getElementById("fit-filter").value = "";
   document.getElementById("sort").value = "date-desc";
   activeCategories.clear();
   document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
@@ -362,10 +386,11 @@ function clearFilters() {
 }
 
 function renderList() {
-  const q = document.getElementById("search").value.toLowerCase().trim();
-  const ag = document.getElementById("agency-filter").value;
+  const q   = document.getElementById("search").value.toLowerCase().trim();
+  const ag  = document.getElementById("agency-filter").value;
+  const fit = document.getElementById("fit-filter").value;
   const sort = document.getElementById("sort").value;
-  const hasFilters = q || ag || activeCategories.size;
+  const hasFilters = q || ag || fit || activeCategories.size;
 
   document.getElementById("clear-btn").classList.toggle("visible", !!hasFilters);
 
@@ -375,12 +400,14 @@ function renderList() {
       if (!hay.includes(q)) return false;
     }
     if (ag && r.agency !== ag) return false;
+    if (fit && r.fit !== fit) return false;
     if (activeCategories.size && !activeCategories.has(r.category)) return false;
     return true;
   });
 
   if (sort === "date-desc") list.sort((a, b) => (b._found_date || "").localeCompare(a._found_date || ""));
   else if (sort === "date-asc") list.sort((a, b) => (a._found_date || "").localeCompare(b._found_date || ""));
+  else if (sort === "fit") list.sort((a, b) => (FIT_ORDER[a.fit] ?? 2) - (FIT_ORDER[b.fit] ?? 2));
   else if (sort === "deadline") {
     list.sort((a, b) => {
       const da = parseDeadline(a.deadline), db = parseDeadline(b.deadline);
@@ -409,6 +436,8 @@ function renderList() {
 
   container.innerHTML = list.map((r, i) => {
     const meta = CAT_META[r.category] || { label: r.category || "Other", bg: "#F1EFE8", text: "#444" };
+    const fitMeta = FIT_META[r.fit] || FIT_META["monitor"];
+    const isStrongFit = r.fit === "strong";
     const dl = parseDeadline(r.deadline);
     const days = daysUntil(dl);
     const dlStr = fmtDate(r.deadline);
@@ -429,9 +458,10 @@ function renderList() {
     }
 
     return `
-    <div class="rfp-card${isUrgent ? " urgent-card" : ""}" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
+    <div class="rfp-card${isStrongFit ? " fit-strong-card" : ""}${isUrgent ? " urgent-card" : ""}" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
       <div>
         <div class="rfp-top">
+          <span class="fit-badge ${fitMeta.cls}">${fitMeta.label}</span>
           <span class="cat-badge" style="background:${meta.bg};color:${meta.text}">${meta.label}</span>
           <span class="agency-name">${r.agency || ""}</span>
         </div>
