@@ -303,15 +303,14 @@ def send_email(html: str, new_count: int, run_date: str) -> None:
     smtp_port     = int(os.environ.get("SMTP_PORT", "587").strip())
     smtp_user     = os.environ["SMTP_USER"].strip()
     smtp_password = os.environ["SMTP_PASSWORD"].strip()
-    to_address    = os.environ["DIGEST_TO_EMAIL"].strip()
-
+    to_address = os.environ["DIGEST_TO_EMAIL"].strip().split(",")
     subject = f"Transit RFP Digest - {run_date} ({new_count} new)"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"]    = smtp_user
     msg["To"]      = to_address
-    msg.attach(MIMEText(html, "html"))
+    msg["To"] = ", ".join(to_address)
 
     with smtplib.SMTP(smtp_host, smtp_port) as server:
         server.ehlo()
