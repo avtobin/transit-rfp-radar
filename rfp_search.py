@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
 Transit RFP Radar
-Searches 13 transit agency procurement portals daily,
+Searches 31 transit agency procurement portals daily,
 deduplicates against seen RFPs, and sends an email digest.
 """
 
 import os
+import re
 import json
 import hashlib
 import smtplib
@@ -17,47 +18,51 @@ from email.mime.text import MIMEText
 from pathlib import Path
 import anthropic
 
-# ── Configuration ────────────────────────────────────────────────────────────
+# ── Configuration ─────────────────────────────────────────────────────────────
 
 AGENCIES = [
     # ── Southern California ───────────────────────────────────────────────────
-    {"id": "octa",      "name": "OCTA",                              "portal": "https://cammnet.octa.net/procurements/"},
-    {"id": "lbt",       "name": "Long Beach Transit",                "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
-    {"id": "rta",       "name": "Riverside Transit Agency",          "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
-    {"id": "sdmts",     "name": "San Diego MTS",                     "portal": "https://vendors.planetbids.com/portal/14771/bo/bo-search"},
-    {"id": "omnitrans", "name": "Omnitrans",                         "portal": "https://vendors.planetbids.com/portal/18046/bo/bo-search"},
-    {"id": "nctd",      "name": "North County Transit District",     "portal": "https://vendors.planetbids.com/portal/20134/bo/bo-search"},
-    {"id": "foothill",  "name": "Foothill Transit",                  "portal": "https://vendors.planetbids.com/portal/29905/bo/bo-search"},
-    {"id": "sunline",   "name": "SunLine Transit",                   "portal": "https://vendors.planetbids.com/portal/56419/bo/bo-search"},
-    {"id": "sbcta",     "name": "San Bernardino CTA",                "portal": "https://www.gosbcta.com/doing-business/bids-rfps/"},
-    {"id": "gctd",      "name": "Gold Coast Transit",                "portal": "https://www.gctd.org/contact/doing-business/"},
-    {"id": "metrolink", "name": "Metrolink",                         "portal": "https://metrolinktrains.com/about/doing-business-with-metrolink/procurement-opportunities/"},
-    {"id": "ladot",     "name": "LADOT",                             "portal": "https://www.rampla.org/s/"},
+    {"id": "octa",       "name": "OCTA",                               "portal": "https://cammnet.octa.net/procurements/"},
+    {"id": "lbt",        "name": "Long Beach Transit",                 "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
+    {"id": "rta",        "name": "Riverside Transit Agency",           "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
+    {"id": "sdmts",      "name": "San Diego MTS",                      "portal": "https://vendors.planetbids.com/portal/14771/bo/bo-search"},
+    {"id": "omnitrans",  "name": "Omnitrans",                          "portal": "https://vendors.planetbids.com/portal/18046/bo/bo-search"},
+    {"id": "nctd",       "name": "North County Transit District",      "portal": "https://vendors.planetbids.com/portal/20134/bo/bo-search"},
+    {"id": "foothill",   "name": "Foothill Transit",                   "portal": "https://vendors.planetbids.com/portal/29905/bo/bo-search"},
+    {"id": "sunline",    "name": "SunLine Transit",                    "portal": "https://vendors.planetbids.com/portal/56419/bo/bo-search"},
+    {"id": "sbcta",      "name": "San Bernardino CTA",                 "portal": "https://www.gosbcta.com/doing-business/bids-rfps/"},
+    {"id": "gctd",       "name": "Gold Coast Transit",                 "portal": "https://www.gctd.org/contact/doing-business/"},
+    {"id": "metrolink",  "name": "Metrolink",                          "portal": "https://metrolinktrains.com/about/doing-business-with-metrolink/procurement-opportunities/"},
+    {"id": "ladot",      "name": "LADOT",                              "portal": "https://www.rampla.org/s/"},
     # ── Northern California ───────────────────────────────────────────────────
-    {"id": "bart",      "name": "BART",                              "portal": "https://suppliers.bart.gov/psp/BRFPV91/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL?active=P"},
-    {"id": "vta",       "name": "VTA (Santa Clara)",                 "portal": "https://procurement.opengov.com/portal/vta?departmentId=all&status=open&page=1&limit=50&sortField=proposalDeadline&sortDirection=DESC"},
-    {"id": "actransit", "name": "AC Transit",                        "portal": "https://actransit.bonfirehub.com/portal/?tab=openOpportunities"},
+    {"id": "bart",       "name": "BART",                               "portal": "https://suppliers.bart.gov/psp/BRFPV91/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL?active=P"},
+    {"id": "vta",        "name": "VTA (Santa Clara)",                  "portal": "https://procurement.opengov.com/portal/vta?departmentId=all&status=open&page=1&limit=50&sortField=proposalDeadline&sortDirection=DESC"},
+    {"id": "actransit",  "name": "AC Transit",                         "portal": "https://actransit.bonfirehub.com/portal/?tab=openOpportunities"},
     # ── Pacific Northwest ─────────────────────────────────────────────────────
-    {"id": "kcmetro",   "name": "King County Metro",                 "portal": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151"},
-    {"id": "trimet",    "name": "TriMet",                            "portal": "https://bidlocker.us/a/trimet/BidLocker"},
-    {"id": "soundtransit", "name": "Sound Transit",                  "portal": "https://www.biddingo.com/soundtransit"},
-    {"id": "commtransit",  "name": "Community Transit",              "portal": "https://commtrans.procureware.com/Bids"},
+    {"id": "kcmetro",    "name": "King County Metro",                  "portal": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151"},
+    {"id": "trimet",     "name": "TriMet",                             "portal": "https://bidlocker.us/a/trimet/BidLocker"},
+    {"id": "soundtransit","name": "Sound Transit",                     "portal": "https://www.biddingo.com/soundtransit"},
+    {"id": "commtransit","name": "Community Transit",                  "portal": "https://commtrans.procureware.com/Bids"},
     # ── Mountain / Southwest ──────────────────────────────────────────────────
-    {"id": "rtd",       "name": "Denver RTD",                        "portal": "https://procurement.opengov.com/portal/rtd-denver?departmentId=all&status=open"},
+    {"id": "rtd",        "name": "Denver RTD",                         "portal": "https://procurement.opengov.com/portal/rtd-denver?departmentId=all&status=open"},
     # ── Texas ─────────────────────────────────────────────────────────────────
-    {"id": "houston",   "name": "Houston Metro",                     "portal": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities"},
+    {"id": "houston",    "name": "Houston Metro",                      "portal": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities"},
     # ── Mid-Atlantic / Northeast ──────────────────────────────────────────────
-    {"id": "wmata",     "name": "WMATA",                             "portal": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL"},
-    {"id": "septa",     "name": "SEPTA",                             "portal": "https://wwww.septa.org/procurement/bids/"},
-    {"id": "prt",       "name": "Pittsburgh PRT",                    "portal": "https://www.rideprt.org/business-center/procurement/bids-and-rfps/"},
-    {"id": "nymta_cd",  "name": "NY MTA — Construction & Development", "portal": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities"},
-    {"id": "nymta_gen", "name": "NY MTA — General Procurement",      "portal": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities"},
-    {"id": "nymta_hq",  "name": "NY MTA — Headquarters",             "portal": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters"},
-    {"id": "nymta_nyct","name": "NY MTA — NYC Transit",              "portal": "https://www.mta.info/doing-business-with-us/procurement/new-york-city-transit"},
-    {"id": "nymta_lirr","name": "NY MTA — Long Island Rail Road",    "portal": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road"},
-    {"id": "mbta",      "name": "Boston MBTA",                       "portal": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/"},
-    {"id": "njtransit", "name": "NJ Transit",                        "portal": "https://www.njtransit.com/procurement/calendar"},
+    {"id": "wmata",      "name": "WMATA",                              "portal": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL"},
+    {"id": "septa",      "name": "SEPTA",                              "portal": "https://wwww.septa.org/procurement/bids/"},
+    {"id": "prt",        "name": "Pittsburgh PRT",                     "portal": "https://www.rideprt.org/business-center/procurement/bids-and-rfps/"},
+    {"id": "nymta_cd",   "name": "NY MTA — Construction & Development","portal": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities"},
+    {"id": "nymta_gen",  "name": "NY MTA — General Procurement",       "portal": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities"},
+    {"id": "nymta_hq",   "name": "NY MTA — Headquarters",              "portal": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters"},
+    {"id": "nymta_nyct", "name": "NY MTA — NYC Transit",               "portal": "https://www.mta.info/doing-business-with-us/procurement/new-york-city-transit"},
+    {"id": "nymta_lirr", "name": "NY MTA — Long Island Rail Road",     "portal": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road"},
+    {"id": "mbta",       "name": "Boston MBTA",                        "portal": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/"},
+    {"id": "njtransit",  "name": "NJ Transit",                         "portal": "https://www.njtransit.com/procurement/calendar"},
 ]
+
+# All MTA sub-portals share one dedup namespace so the same RFP
+# appearing on multiple MTA pages is not counted twice.
+MTA_FAMILY = {"nymta_cd", "nymta_gen", "nymta_hq", "nymta_nyct", "nymta_lirr"}
 
 KEYWORDS = (
     "program management OR project management OR construction management OR "
@@ -135,15 +140,31 @@ Category codes:
   data  = data analytics, performance reporting, business intelligence, dashboards, KPIs, data strategy
   proc  = procurement advisory, sourcing strategy, contract management, vendor management, supply chain
 
-IMPORTANT: Include both professional services/consulting RFPs AND construction contracts (CMAR, design-build, general contractor). Seeing construction awards helps anticipate upcoming advisory, program management, and owner's representative opportunities that typically follow.
+IMPORTANT: Include both professional services/consulting RFPs AND construction contracts (CMAR,
+design-build, general contractor). Seeing construction awards helps anticipate upcoming advisory,
+program management, and owner's representative opportunities that typically follow.
 
 Return {"rfps": []} if no matching RFPs are found. Maximum 5 results."""
 
 
-# ── Deduplication helpers ─────────────────────────────────────────────────────
+# ── Deduplication helpers ──────────────────────────────────────────────────────
 
-def make_rfp_id(agency_name: str, title: str) -> str:
-    raw = (agency_name + title).lower().replace(" ", "")
+def _normalize_title(title: str) -> str:
+    """Lowercase, strip punctuation, collapse whitespace."""
+    clean = re.sub(r"[^\w\s]", "", title.lower())
+    return re.sub(r"\s+", " ", clean).strip()
+
+
+def make_rfp_id(agency_id: str, agency_name: str, title: str) -> str:
+    """
+    Generate a stable dedup ID for an RFP.
+
+    All five MTA sub-portals share the namespace 'NY MTA' so the same
+    solicitation appearing on multiple MTA pages hashes to the same ID
+    and is counted only once.
+    """
+    namespace = "NY MTA" if agency_id in MTA_FAMILY else agency_name
+    raw = namespace + _normalize_title(title)
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 
@@ -158,12 +179,12 @@ def save_seen(seen: set) -> None:
     SEEN_FILE.write_text(json.dumps(sorted(seen), indent=2))
 
 
-# ── Git helpers ───────────────────────────────────────────────────────────────
+# ── Git helpers ────────────────────────────────────────────────────────────────
 
 def git_push_seen() -> None:
     """Pull latest then push updated seen_rfps.json to avoid conflicts."""
     try:
-        subprocess.run(["git", "config", "user.name", "rfp-radar[bot]"], check=True)
+        subprocess.run(["git", "config", "user.name",  "rfp-radar[bot]"],                          check=True)
         subprocess.run(["git", "config", "user.email", "rfp-radar[bot]@users.noreply.github.com"], check=True)
         subprocess.run(["git", "add", str(SEEN_FILE)], check=True)
         result = subprocess.run(["git", "diff", "--cached", "--quiet"])
@@ -171,14 +192,14 @@ def git_push_seen() -> None:
             print("No changes to seen_rfps.json — skipping push.")
             return
         subprocess.run(["git", "commit", "-m", "Update seen_rfps.json [skip ci]"], check=True)
-        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
-        subprocess.run(["git", "push", "origin", "main"], check=True)
+        subprocess.run(["git", "pull",   "--rebase", "origin", "main"],            check=True)
+        subprocess.run(["git", "push",   "origin",   "main"],                      check=True)
         print("seen_rfps.json pushed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Git push warning (non-fatal): {e}")
 
 
-# ── Anthropic API call ────────────────────────────────────────────────────────
+# ── Anthropic API call ─────────────────────────────────────────────────────────
 
 def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
     """Search one agency for matching RFPs using Claude with web search."""
@@ -214,12 +235,12 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
                 clean = clean[4:]
 
         parsed = json.loads(clean.strip())
-        rfps = parsed.get("rfps", [])
+        rfps   = parsed.get("rfps", [])
 
         for rfp in rfps:
             rfp["agency"]      = agency["name"]
             rfp["agency_id"]   = agency["id"]
-            rfp["_id"]         = make_rfp_id(agency["name"], rfp.get("title", ""))
+            rfp["_id"]         = make_rfp_id(agency["id"], agency["name"], rfp.get("title", ""))
             rfp["_found_date"] = datetime.now().strftime("%Y-%m-%d")
 
         print(f"  [{agency['name']}] {len(rfps)} RFP(s) found")
@@ -233,15 +254,15 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
         return []
 
 
-# ── Email builder ─────────────────────────────────────────────────────────────
+# ── Email builder ──────────────────────────────────────────────────────────────
 
 def build_rfp_row(rfp: dict) -> str:
-    cat        = rfp.get("category", "adv")
-    colors     = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
-    cat_label  = CATEGORY_LABELS.get(cat, cat)
-    deadline   = rfp.get("deadline", "Not specified")
-    rfp_num    = rfp.get("rfp_number", "Not specified")
-    url        = rfp.get("url", "#")
+    cat           = rfp.get("category", "adv")
+    colors        = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
+    cat_label     = CATEGORY_LABELS.get(cat, cat)
+    deadline      = rfp.get("deadline", "Not specified")
+    rfp_num       = rfp.get("rfp_number", "Not specified")
+    url           = rfp.get("url", "#")
     deadline_color = "#993C1D" if deadline != "Not specified" else "#888"
 
     return f"""
@@ -313,6 +334,8 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
           <div style="font-size:13px;margin-top:6px;">No new RFPs found across all agencies today.</div>
         </div>"""
 
+    agency_list = " · ".join(a["name"].replace("NY MTA — ", "MTA ") for a in AGENCIES)
+
     return f"""<!DOCTYPE html>
 <html>
 <body style="margin:0;padding:0;background:#f4f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
@@ -337,18 +360,16 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
     </div>
     {body_content}
     <div style="padding:16px 28px;border-top:1px solid #e8e8e4;font-size:11px;color:#aaa;line-height:1.6;">
-      Monitoring: LA Metro · OCTA · Long Beach Transit · Riverside Transit Agency ·
-      San Diego MTS · Omnitrans · NCTD · King County Metro · TriMet ·
-      NY MTA · MBTA · NJ Transit · LADOT
+      Monitoring: {agency_list}
       <br>Categories: Program Mgmt · Construction Mgmt · Advisory · Zero Emissions · Microgrid/Energy ·
-      P3 · Operations & Maintenance · Grant Management · Asset Management · Data Analytics · Procurement Advisory
+      P3 · Operations &amp; Maintenance · Grant Management · Asset Management · Data Analytics · Procurement Advisory
     </div>
   </div>
 </body>
 </html>"""
 
 
-# ── Email sender ──────────────────────────────────────────────────────────────
+# ── Email sender ───────────────────────────────────────────────────────────────
 
 def send_email(html: str, new_count: int, run_date: str) -> None:
     smtp_host     = os.environ.get("SMTP_HOST", "smtp.gmail.com").strip()
@@ -357,7 +378,7 @@ def send_email(html: str, new_count: int, run_date: str) -> None:
     smtp_password = os.environ["SMTP_PASSWORD"].strip()
     to_addresses  = [a.strip() for a in os.environ["DIGEST_TO_EMAIL"].split(",")]
 
-    subject = f"Transit RFP Digest - {run_date} ({new_count} new)"
+    subject = f"Transit RFP Digest — {run_date} ({new_count} new)"
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -374,7 +395,7 @@ def send_email(html: str, new_count: int, run_date: str) -> None:
     print(f"Email sent to {', '.join(to_addresses)}")
 
 
-# ── Main ──────────────────────────────────────────────────────────────────────
+# ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
     api_key = os.environ.get("ANTHROPIC_API_KEY")
