@@ -39,7 +39,13 @@ KEYWORDS = (
     "program management OR project management OR construction management OR "
     "advisory OR consulting OR zero emission OR ZEB OR battery electric OR "
     "electrification OR EV charging OR EVSE OR microgrid OR renewable energy OR "
-    "energy storage OR owner's representative OR project controls"
+    "energy storage OR owner's representative OR project controls OR "
+    "P3 OR public-private partnership OR alternative delivery OR "
+    "operations and maintenance OR O&M consulting OR "
+    "grant management OR federal funding OR FTA grant OR "
+    "asset management OR CMMS OR EAM OR "
+    "data analytics OR performance reporting OR business intelligence OR "
+    "procurement advisory OR sourcing strategy OR contract management"
 )
 
 CATEGORY_LABELS = {
@@ -48,6 +54,12 @@ CATEGORY_LABELS = {
     "adv":   "Advisory & Consulting",
     "zev":   "Zero Emissions / EV",
     "micro": "Microgrid / Energy",
+    "p3":    "P3 / Alternative Delivery",
+    "om":    "Operations & Maintenance",
+    "grant": "Grant Management",
+    "asset": "Asset Management",
+    "data":  "Data Analytics & Reporting",
+    "proc":  "Procurement Advisory",
 }
 
 CATEGORY_COLORS = {
@@ -56,15 +68,20 @@ CATEGORY_COLORS = {
     "adv":   {"bg": "#FAEEDA", "text": "#633806"},
     "zev":   {"bg": "#EAF3DE", "text": "#27500A"},
     "micro": {"bg": "#FAECE7", "text": "#4A1B0C"},
+    "p3":    {"bg": "#E6F1FB", "text": "#0C447C"},
+    "om":    {"bg": "#FEF3C7", "text": "#78350F"},
+    "grant": {"bg": "#FCE7F3", "text": "#831843"},
+    "asset": {"bg": "#E0E7FF", "text": "#3730A3"},
+    "data":  {"bg": "#F0FDF4", "text": "#14532D"},
+    "proc":  {"bg": "#FFF7ED", "text": "#7C2D12"},
 }
 
 SEEN_FILE = Path("data/seen_rfps.json")
 
-SYSTEM_PROMPT = """You are an RFP procurement researcher for a consulting firm that pursues
-program management, construction management, advisory, zero-emissions, and microgrid work
-with transit agencies.
+SYSTEM_PROMPT = """You are an RFP procurement researcher for Accenture's AEC consulting practice,
+which pursues professional services contracts with transit agencies.
 
-Search for active or recently issued RFPs (2024–2025) from the given transit agency.
+Search for active or recently issued RFPs from the given transit agency.
 
 Return ONLY valid JSON — no markdown, no backticks, no explanation. Format:
 {
@@ -74,7 +91,7 @@ Return ONLY valid JSON — no markdown, no backticks, no explanation. Format:
       "summary": "2-3 sentence description of the scope of work",
       "deadline": "deadline date as Month DD YYYY, or Not specified",
       "issue_date": "issue date as Month DD YYYY, or Not specified",
-      "category": "pm|cm|adv|zev|micro",
+      "category": "pm|cm|adv|zev|micro|p3|om|grant|asset|data|proc",
       "rfp_number": "RFP/IFB/RFQ number, or Not specified",
       "url": "direct URL to RFP posting or procurement page"
     }
@@ -82,11 +99,19 @@ Return ONLY valid JSON — no markdown, no backticks, no explanation. Format:
 }
 
 Category codes:
-  pm    = program management, project management, project controls, PMO
-  cm    = construction management, CM at-risk, owner's representative, inspector of record
-  adv   = advisory, consulting, strategic planning, technical assistance
-  zev   = zero emission vehicles, battery electric buses, electrification, EV charging, EVSE
+  pm    = program management, project management, project controls, PMO, schedule management
+  cm    = construction management, CM advisory, owner's representative, inspector of record
+  adv   = advisory, consulting, strategic planning, technical assistance, organizational assessment
+  zev   = zero emission vehicles, battery electric buses, electrification, EV charging, EVSE, ZEB
   micro = microgrid, energy storage, solar, renewable energy, distributed energy resources
+  p3    = public-private partnership, P3, alternative delivery, concession, DBFOM, DBFM
+  om    = operations and maintenance consulting, O&M advisory, service delivery, workforce, safety management
+  grant = grant management, federal funding strategy, FTA grants, RAISE, CRISI, funding advisory
+  asset = asset management systems, CMMS, EAM, asset lifecycle, inventory management
+  data  = data analytics, performance reporting, business intelligence, dashboards, KPIs, data strategy
+  proc  = procurement advisory, sourcing strategy, contract management, vendor management, supply chain
+
+IMPORTANT: Include both professional services/consulting RFPs AND construction contracts (CMAR, design-build, general contractor). Seeing construction awards helps anticipate upcoming advisory, program management, and owner's representative opportunities that typically follow.
 
 Return {"rfps": []} if no matching RFPs are found. Maximum 5 results."""
 
@@ -122,7 +147,6 @@ def git_push_seen() -> None:
             print("No changes to seen_rfps.json — skipping push.")
             return
         subprocess.run(["git", "commit", "-m", "Update seen_rfps.json [skip ci]"], check=True)
-        # Pull with rebase before pushing to avoid conflicts from concurrent runs
         subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
         subprocess.run(["git", "push", "origin", "main"], check=True)
         print("seen_rfps.json pushed successfully.")
@@ -150,7 +174,6 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
             }]
         )
 
-        # Extract text blocks from response
         text = "".join(
             block.text for block in response.content
             if hasattr(block, "text")
@@ -160,7 +183,6 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
             print(f"  [{agency['name']}] No text response returned")
             return []
 
-        # Strip any accidental markdown fences
         clean = text.strip()
         if clean.startswith("```"):
             clean = clean.split("```")[1]
@@ -170,7 +192,6 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
         parsed = json.loads(clean.strip())
         rfps = parsed.get("rfps", [])
 
-        # Attach agency metadata and generate stable IDs
         for rfp in rfps:
             rfp["agency"]      = agency["name"]
             rfp["agency_id"]   = agency["id"]
@@ -191,8 +212,8 @@ def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
 # ── Email builder ─────────────────────────────────────────────────────────────
 
 def build_rfp_row(rfp: dict) -> str:
-    cat        = rfp.get("category", "pm")
-    colors     = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["pm"])
+    cat        = rfp.get("category", "adv")
+    colors     = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
     cat_label  = CATEGORY_LABELS.get(cat, cat)
     deadline   = rfp.get("deadline", "Not specified")
     rfp_num    = rfp.get("rfp_number", "Not specified")
@@ -295,7 +316,8 @@ def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int
       Monitoring: LA Metro · OCTA · Long Beach Transit · Riverside Transit Agency ·
       San Diego MTS · Omnitrans · NCTD · King County Metro · TriMet ·
       NY MTA · MBTA · NJ Transit · LADOT
-      <br>Categories: Program Mgmt · Construction Mgmt · Advisory · Zero Emissions · Microgrid/Energy
+      <br>Categories: Program Mgmt · Construction Mgmt · Advisory · Zero Emissions · Microgrid/Energy ·
+      P3 · Operations & Maintenance · Grant Management · Asset Management · Data Analytics · Procurement Advisory
     </div>
   </div>
 </body>
