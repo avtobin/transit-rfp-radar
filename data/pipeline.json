@@ -147,7 +147,7 @@
     "expected_rfp_date": "Jul 2026",
     "estimated_value": 200000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
-    "incumbent": "TMD (prior study — unconfirmed for new procurement)",
+    "incumbent": "TMD (prior study \u2014 unconfirmed for new procurement)",
     "why_it_matters": "Follow-on planning study; prior incumbent TMD not confirmed for new scope.",
     "next_action": "Verify whether this is a follow-on scope. Check OCTA project page and CAMMNet weekly.",
     "due_date": null,
@@ -235,7 +235,7 @@
     "id": "lametro-zeb-j-silver-charging",
     "agency": "Los Angeles County Metropolitan Transportation Authority",
     "agency_id": "lametro",
-    "title": "Electric Bus Charging Infrastructure — J (Silver) Line",
+    "title": "Electric Bus Charging Infrastructure \u2014 J (Silver) Line",
     "opportunity_type": "Capital Delivery Watchlist",
     "pursuit_tier": "Tier 1",
     "score": 92,
@@ -244,21 +244,21 @@
     "estimated_value": 8016500,
     "contact": "Timothy Lindholm, Chief Program Management Officer",
     "incumbent": "Anser Advisory (CMSS AE120406MC083)",
-    "why_it_matters": "Accenture reportedly providing CM services on J/Silver Line charging — verify internally.",
+    "why_it_matters": "Accenture reportedly providing CM services on J/Silver Line charging \u2014 verify internally.",
     "next_action": "Confirm contract vehicle, incumbent role, and whether task-order opportunity is realistic.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "LA Metro FY2026-27 Proposed Budget Book",
+        "type": "board_action",
+        "label": "LA Metro FY2026-27 Proposed Budget Book (board approved funding)",
         "url": "https://metro.legistar.com/LegislationDetail.aspx?GUID=C4865567-7505-474C-9FE4-5A2B323A8772&ID=6864771",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -276,21 +276,21 @@
     "estimated_value": 23507100,
     "contact": "Timothy Lindholm, Chief Program Management Officer",
     "incumbent": "Clark Construction (PDBOM Phase 1), Anser Advisory (CMSS), Zephyr UAS (CMSS)",
-    "why_it_matters": "Large ZEB charging capital project. Multiple CMSS vehicles may be relevant — verify Accenture role.",
+    "why_it_matters": "Large ZEB charging capital project. Multiple CMSS vehicles may be relevant \u2014 verify Accenture role.",
     "next_action": "Confirm contract vehicle, incumbent role, and whether task-order opportunity is realistic.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "LA Metro FY2026-27 Proposed Budget Book",
+        "type": "board_action",
+        "label": "LA Metro FY2026-27 Proposed Budget Book (board approved funding)",
         "url": "https://metro.legistar.com/LegislationDetail.aspx?FullText=1&GUID=4F8CFDCE-3152-4BAF-AEF3-6D1927BD8EF3&ID=7746749",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -308,21 +308,21 @@
     "estimated_value": 23507100,
     "contact": "Timothy Lindholm, Chief Program Management Officer",
     "incumbent": "Clark Construction (PDBOM Phase 1), Anser Advisory (CMSS), Zephyr UAS (CMSS)",
-    "why_it_matters": "Same program as Division 18 — paired ZEB charging infrastructure delivery.",
+    "why_it_matters": "Same program as Division 18 \u2014 paired ZEB charging infrastructure delivery.",
     "next_action": "Confirm contract vehicle, incumbent role, and whether task-order opportunity is realistic.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "LA Metro FY2026-27 Proposed Budget Book",
+        "type": "board_action",
+        "label": "LA Metro FY2026-27 Proposed Budget Book (board approved funding)",
         "url": "https://metro.legistar.com/LegislationDetail.aspx?FullText=1&GUID=4F8CFDCE-3152-4BAF-AEF3-6D1927BD8EF3&ID=7746749",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -331,7 +331,7 @@
     "id": "octa-i5-i405-yale-cm",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "I-5, I-405 to Yale Avenue — Construction Management Services",
+    "title": "I-5, I-405 to Yale Avenue \u2014 Construction Management Services",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 89,
@@ -340,21 +340,21 @@
     "estimated_value": 5000000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
     "incumbent": "Unknown (highway CM agreements C-8-1969/C-8-1960 referenced)",
-    "why_it_matters": "$5M highway CM budget line — verify contract route before pursuit.",
+    "why_it_matters": "$5M highway CM budget line \u2014 verify contract route before pursuit.",
     "next_action": "Check OpenGov manually and watch board actions for procurement authorization.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2025-26 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2025-26 Proposed Capital Book (board approved funding)",
         "url": "https://octa.net/pdf/FY2025-26_Proposed_Capital_Book.pdf",
         "scraped": "2026-05-30",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
     "last_checked": "2026-05-30"
@@ -363,7 +363,7 @@
     "id": "octa-i5-yale-sr55-cm",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "I-5, Yale Avenue to SR-55 — Construction Management Services",
+    "title": "I-5, Yale Avenue to SR-55 \u2014 Construction Management Services",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 89,
@@ -371,22 +371,22 @@
     "expected_rfp_date": null,
     "estimated_value": 7500000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
-    "incumbent": "Mott MacDonald (Agreement C-2-2855 — verify)",
-    "why_it_matters": "$7.5M highway CM budget line. Mott MacDonald identified on related I-5 work — verify FY2027 route.",
+    "incumbent": "Mott MacDonald (Agreement C-2-2855 \u2014 verify)",
+    "why_it_matters": "$7.5M highway CM budget line. Mott MacDonald identified on related I-5 work \u2014 verify FY2027 route.",
     "next_action": "Validate whether this budget line maps to upcoming procurement or on-call task order.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2025-26 Proposed Services Book",
+        "type": "board_action",
+        "label": "OCTA FY2025-26 Proposed Services Book (board approved funding)",
         "url": "https://octa.net/pdf/FY2025-26_Proposed_Services_Book.pdf",
         "scraped": "2026-05-30",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
     "last_checked": "2026-05-30"
@@ -395,7 +395,7 @@
     "id": "octa-sr55-i5-sr91-cm",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "SR-55, I-5 to SR-91 — Construction Management Services",
+    "title": "SR-55, I-5 to SR-91 \u2014 Construction Management Services",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 89,
@@ -404,21 +404,21 @@
     "estimated_value": 8300000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
     "incumbent": "Unknown",
-    "why_it_matters": "$8.3M highway CM budget — verify official OCTA contract/board record.",
+    "why_it_matters": "$8.3M highway CM budget \u2014 verify official OCTA contract/board record.",
     "next_action": "Validate whether this budget line maps to upcoming procurement or on-call task order.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2026-27 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2026-27 Proposed Capital Book (board approved funding)",
         "url": "https://cammnet.octa.net/procurements/",
         "scraped": "2026-05-30",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
     "last_checked": "2026-05-30"
@@ -427,7 +427,7 @@
     "id": "octa-crspp-revetment-cm",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "Construction Management Services — CRSPP Revetment",
+    "title": "Construction Management Services \u2014 CRSPP Revetment",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 89,
@@ -442,15 +442,15 @@
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2026-27 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2026-27 Proposed Capital Book (board approved funding)",
         "url": "https://cammnet.octa.net/procurements/",
         "scraped": "2026-05-30",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
     "last_checked": "2026-05-30"
@@ -468,7 +468,7 @@
     "estimated_value": 230000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
     "incumbent": "Unknown",
-    "why_it_matters": "Future procurement listed Jun 2026 — verify solicitation release.",
+    "why_it_matters": "Future procurement listed Jun 2026 \u2014 verify solicitation release.",
     "next_action": "Monitor CAMMNet/OpenGov weekly until solicitation is issued.",
     "due_date": null,
     "solicitation_number": null,
@@ -500,21 +500,21 @@
     "estimated_value": 9900000,
     "contact": "Sharlane Bailey, Director of Capital Projects and Facilities",
     "incumbent": "Unknown",
-    "why_it_matters": "$10M charger replacement — major ZEB infrastructure delivery item likely requiring owner-side PM/CM.",
+    "why_it_matters": "$10M charger replacement \u2014 major ZEB infrastructure delivery item likely requiring owner-side PM/CM.",
     "next_action": "Search agency procurement portal and board agendas before active pursuit.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "Foothill Transit FY2026-27 Proposed Business Plan and Budget",
+        "type": "board_action",
+        "label": "Foothill Transit FY2026-27 Proposed Business Plan and Budget (board approved funding)",
         "url": "https://www.foothilltransit.org/sites/default/files/2025-04/04-18-2025_special_executive_board_meeting_agenda_0.pdf",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -532,21 +532,21 @@
     "estimated_value": 20000000,
     "contact": "Sharlane Bailey, Director of Capital Projects and Facilities",
     "incumbent": "Psomas (preliminary engineering, 30% design)",
-    "why_it_matters": "$20M mobility hub — design-build anticipated, owner-side PM/CM/stakeholder coordination likely needed.",
+    "why_it_matters": "$20M mobility hub \u2014 design-build anticipated, owner-side PM/CM/stakeholder coordination likely needed.",
     "next_action": "Search agency procurement portal and board agendas before active pursuit.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "Foothill Transit FY2026-27 Executive Board Meeting Agenda",
+        "type": "board_action",
+        "label": "Foothill Transit FY2026-27 Executive Board Meeting Agenda (board approved funding)",
         "url": "https://www.foothilltransit.org/sites/default/files/2025-08/08-29-2025_executive_board_meeting_agenda.pdf",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -564,21 +564,21 @@
     "estimated_value": 32033700,
     "contact": "Timothy Lindholm, Chief Program Management Officer",
     "incumbent": "Unknown",
-    "why_it_matters": "$32M TPSS budget — monitor for CM or task-order support under existing on-calls.",
+    "why_it_matters": "$32M TPSS budget \u2014 monitor for CM or task-order support under existing on-calls.",
     "next_action": "Search agency procurement portal, board agendas, and awards before active pursuit.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "LA Metro FY2026-27 Proposed Budget Book",
+        "type": "board_action",
+        "label": "LA Metro FY2026-27 Proposed Budget Book (board approved funding)",
         "url": "https://metro.legistar.com/",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -596,21 +596,21 @@
     "estimated_value": 2560218,
     "contact": "Jim Beil, Executive Director of Capital Programs",
     "incumbent": "Unknown",
-    "why_it_matters": "Direct construction administration and management budget line — top pursuit.",
+    "why_it_matters": "Direct construction administration and management budget line \u2014 top pursuit.",
     "next_action": "Check OpenGov manually and watch board actions for procurement authorization.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2026-27 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2026-27 Proposed Capital Book (board approved funding)",
         "url": "https://cammnet.octa.net/procurements/",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -627,22 +627,22 @@
     "expected_rfp_date": null,
     "estimated_value": 1300000,
     "contact": "Sharlane Bailey, Director of Capital Projects and Facilities",
-    "incumbent": "Unknown (Arcadia contract terminated Jan 2026 — verify if still active)",
-    "why_it_matters": "Hydrogen infrastructure expansion — strong capital delivery signal. Jan 2026 board directed termination of Arcadia contract; verify current status.",
+    "incumbent": "Unknown (Arcadia contract terminated Jan 2026 \u2014 verify if still active)",
+    "why_it_matters": "Hydrogen infrastructure expansion \u2014 strong capital delivery signal. Jan 2026 board directed termination of Arcadia contract; verify current status.",
     "next_action": "Verify whether budget line remains active before pursuit.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "Foothill Transit FY2026-27 Governing Board Meeting Agenda",
+        "type": "board_action",
+        "label": "Foothill Transit FY2026-27 Governing Board Meeting Agenda (board approved funding)",
         "url": "https://foothill-prod.dev.sensisagency.com/sites/default/files/2026-01/01-30-2026_governing_board_meeting_agenda_packet.pdf",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -651,7 +651,7 @@
     "id": "octa-crspp-catchment-pmc",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "PMC Construction Management Services — CRSPP Catchment Wall",
+    "title": "PMC Construction Management Services \u2014 CRSPP Catchment Wall",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 86,
@@ -660,21 +660,21 @@
     "estimated_value": 2400000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
     "incumbent": "Unknown",
-    "why_it_matters": "$2.4M direct PMC/CM budget line — top pursuit.",
+    "why_it_matters": "$2.4M direct PMC/CM budget line \u2014 top pursuit.",
     "next_action": "Validate whether this budget line maps to upcoming procurement or on-call task order.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2026-27 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2026-27 Proposed Capital Book (board approved funding)",
         "url": "https://cammnet.octa.net/procurements/",
         "scraped": "2026-05-29",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
@@ -683,7 +683,7 @@
     "id": "octa-santa-ana-hydrogen-cm",
     "agency": "Orange County Transportation Authority",
     "agency_id": "octa",
-    "title": "Construction Management — Santa Ana Bus Base Hydrogen Fueling Station",
+    "title": "Construction Management \u2014 Santa Ana Bus Base Hydrogen Fueling Station",
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 85,
@@ -691,22 +691,22 @@
     "expected_rfp_date": null,
     "estimated_value": 1500000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
-    "incumbent": "Hout Engineering (possible on-call fit — verify)",
-    "why_it_matters": "Transit facility CM related to hydrogen fueling — may route through on-call or new procurement.",
+    "incumbent": "Hout Engineering (possible on-call fit \u2014 verify)",
+    "why_it_matters": "Transit facility CM related to hydrogen fueling \u2014 may route through on-call or new procurement.",
     "next_action": "Verify contract vehicle before pursuit.",
     "due_date": null,
     "solicitation_number": null,
     "sources": [
       {
-        "type": "budget_cip",
-        "label": "OCTA FY2026-27 Proposed Capital Book",
+        "type": "board_action",
+        "label": "OCTA FY2026-27 Proposed Capital Book (board approved funding)",
         "url": "https://cammnet.octa.net/procurements/",
         "scraped": "2026-05-30",
         "estimated_date": null,
-        "rank": 5
+        "rank": 3
       }
     ],
-    "winning_source": "budget_cip",
+    "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
     "last_checked": "2026-05-30"
@@ -755,8 +755,8 @@
     "expected_rfp_date": null,
     "estimated_value": 5000000,
     "contact": "Sharlane Bailey, Director of Capital Projects and Facilities",
-    "incumbent": "Unknown (RFQual 26-069A issued for design-build — monitor for owner-side CM need)",
-    "why_it_matters": "CNG replacement at O&M facility — specialty infrastructure requiring CM/owner's rep support.",
+    "incumbent": "Unknown (RFQual 26-069A issued for design-build \u2014 monitor for owner-side CM need)",
+    "why_it_matters": "CNG replacement at O&M facility \u2014 specialty infrastructure requiring CM/owner's rep support.",
     "next_action": "Track RFQual 26-069A award and whether Foothill needs owner-side PM/CM support.",
     "due_date": null,
     "solicitation_number": "26-069A",
@@ -787,8 +787,8 @@
     "expected_rfp_date": null,
     "estimated_value": 5700000,
     "contact": "Sharlane Bailey, Director of Capital Projects and Facilities",
-    "incumbent": "Psomas (FY2026 payment detail — project assignment not stated)",
-    "why_it_matters": "Transit center capital delivery — monitor for owner-side PM/CM, design management, construction oversight.",
+    "incumbent": "Psomas (FY2026 payment detail \u2014 project assignment not stated)",
+    "why_it_matters": "Transit center capital delivery \u2014 monitor for owner-side PM/CM, design management, construction oversight.",
     "next_action": "Search agency procurement portal and board agendas before active pursuit.",
     "due_date": null,
     "solicitation_number": null,
@@ -819,7 +819,7 @@
     "expected_rfp_date": null,
     "estimated_value": 300000,
     "contact": "Timothy Lindholm, Chief Program Management Officer",
-    "incumbent": "Unknown (KKCS on broader PMSS — do not assume)",
+    "incumbent": "Unknown (KKCS on broader PMSS \u2014 do not assume)",
     "why_it_matters": "Strong Accenture fit for capital program data, reporting, and analytics support.",
     "next_action": "Search agency procurement portal, board agendas, and awards before active pursuit.",
     "due_date": null,
@@ -838,5 +838,165 @@
     "date_conflict": false,
     "added_date": "2026-05-29",
     "last_checked": "2026-05-30"
+  },
+  {
+    "id": "soundtransit-systemwide-pm",
+    "agency": "Sound Transit",
+    "agency_id": "soundtransit",
+    "title": "Systemwide Program Management Support Services",
+    "opportunity_type": "PM/PMC",
+    "pursuit_tier": "Tier 1",
+    "score": 88,
+    "status": "budget_signal",
+    "expected_rfp_date": null,
+    "estimated_value": 15000000,
+    "contact": "Sound Transit Capital Programs",
+    "incumbent": "Unknown",
+    "why_it_matters": "Sound Transit is one of the fastest-growing transit capital programs in the US. Ongoing PMSS on-call vehicles support the $54B ST3 program delivery.",
+    "next_action": "Monitor Sound Transit procurement portal and board agendas for PMSS recompete or new task order opportunities.",
+    "due_date": null,
+    "solicitation_number": null,
+    "sources": [
+      {
+        "type": "board_action",
+        "label": "Sound Transit ST3 capital program board approvals",
+        "url": "https://www.biddingo.com/soundtransit",
+        "scraped": "2026-06-06",
+        "estimated_date": null,
+        "rank": 3
+      }
+    ],
+    "winning_source": "board_action",
+    "date_conflict": false,
+    "added_date": "2026-06-06",
+    "last_checked": "2026-06-06"
+  },
+  {
+    "id": "kcmetro-zeb-infrastructure-pm",
+    "agency": "King County Metro",
+    "agency_id": "kcmetro",
+    "title": "Zero Emission Bus Infrastructure \u2014 Owner's Representative Services",
+    "opportunity_type": "Owner's Advisory",
+    "pursuit_tier": "Tier 1",
+    "score": 90,
+    "status": "budget_signal",
+    "expected_rfp_date": null,
+    "estimated_value": 8000000,
+    "contact": "King County Metro Capital Division",
+    "incumbent": "Unknown",
+    "why_it_matters": "King County Metro has committed to full ZEB fleet by 2035. Base charging infrastructure procurement underway \u2014 owner's rep and PM advisory support likely needed.",
+    "next_action": "Monitor King County Metro Oracle procurement portal for ZEB infrastructure advisory solicitations.",
+    "due_date": null,
+    "solicitation_number": null,
+    "sources": [
+      {
+        "type": "board_action",
+        "label": "King County Metro ZEB Transition Plan board approvals",
+        "url": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151",
+        "scraped": "2026-06-06",
+        "estimated_date": null,
+        "rank": 3
+      }
+    ],
+    "winning_source": "board_action",
+    "date_conflict": false,
+    "added_date": "2026-06-06",
+    "last_checked": "2026-06-06"
+  },
+  {
+    "id": "wmata-capital-program-advisory",
+    "agency": "WMATA",
+    "agency_id": "wmata",
+    "title": "Capital Program Management Advisory Services",
+    "opportunity_type": "PM/PMC",
+    "pursuit_tier": "Tier 1",
+    "score": 87,
+    "status": "budget_signal",
+    "expected_rfp_date": null,
+    "estimated_value": 12000000,
+    "contact": "WMATA Office of Capital Program Management",
+    "incumbent": "Unknown",
+    "why_it_matters": "WMATA's 10-year $10B capital program is one of the largest in the US. Ongoing need for program controls, advisory, and PMO support services.",
+    "next_action": "Monitor WMATA supplier portal for capital program management advisory solicitations.",
+    "due_date": null,
+    "solicitation_number": null,
+    "sources": [
+      {
+        "type": "board_action",
+        "label": "WMATA FY2026 Capital Improvement Program board approvals",
+        "url": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL",
+        "scraped": "2026-06-06",
+        "estimated_date": null,
+        "rank": 3
+      }
+    ],
+    "winning_source": "board_action",
+    "date_conflict": false,
+    "added_date": "2026-06-06",
+    "last_checked": "2026-06-06"
+  },
+  {
+    "id": "wmata-zeb-electrification",
+    "agency": "WMATA",
+    "agency_id": "wmata",
+    "title": "Bus Electrification Infrastructure \u2014 Construction Management",
+    "opportunity_type": "CM",
+    "pursuit_tier": "Tier 1",
+    "score": 89,
+    "status": "budget_signal",
+    "expected_rfp_date": null,
+    "estimated_value": 20000000,
+    "contact": "WMATA Office of Capital Program Management",
+    "incumbent": "Unknown",
+    "why_it_matters": "WMATA committed to full electric bus fleet by 2042. Major depot electrification program underway \u2014 CM advisory and owner's rep opportunities expected.",
+    "next_action": "Monitor WMATA supplier portal for electrification infrastructure CM solicitations.",
+    "due_date": null,
+    "solicitation_number": null,
+    "sources": [
+      {
+        "type": "board_action",
+        "label": "WMATA bus electrification program board approvals",
+        "url": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL",
+        "scraped": "2026-06-06",
+        "estimated_date": null,
+        "rank": 3
+      }
+    ],
+    "winning_source": "board_action",
+    "date_conflict": false,
+    "added_date": "2026-06-06",
+    "last_checked": "2026-06-06"
+  },
+  {
+    "id": "soundtransit-light-rail-cm",
+    "agency": "Sound Transit",
+    "agency_id": "soundtransit",
+    "title": "Light Rail Extension \u2014 Construction Management Advisory",
+    "opportunity_type": "CM",
+    "pursuit_tier": "Tier 1",
+    "score": 91,
+    "status": "budget_signal",
+    "expected_rfp_date": "Q4 2026",
+    "estimated_value": 25000000,
+    "contact": "Sound Transit Capital Programs",
+    "incumbent": "Unknown",
+    "why_it_matters": "ST3 light rail extensions are generating multiple CM advisory and owner's rep procurements. Federal Way, Tacoma Dome, and Everett extensions all in active delivery.",
+    "next_action": "Monitor Sound Transit Biddingo portal for CM advisory solicitations on active light rail extensions.",
+    "due_date": null,
+    "solicitation_number": null,
+    "sources": [
+      {
+        "type": "board_action",
+        "label": "Sound Transit ST3 light rail extension program board approvals",
+        "url": "https://www.biddingo.com/soundtransit",
+        "scraped": "2026-06-06",
+        "estimated_date": "Q4 2026",
+        "rank": 3
+      }
+    ],
+    "winning_source": "board_action",
+    "date_conflict": false,
+    "added_date": "2026-06-06",
+    "last_checked": "2026-06-06"
   }
 ]
