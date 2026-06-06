@@ -21,200 +21,147 @@
     --accent:    #1A1A18;
     --blue:      #185FA5;
     --urgent:    #993C1D;
+    --green:     #3B6D11;
+    --amber:     #854F0B;
     --radius:    10px;
     --radius-sm: 6px;
   }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text-1);
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.5;
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-1); min-height: 100vh; font-size: 14px; line-height: 1.5; }
 
-  /* ── Layout ── */
   .shell { max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
 
-  /* ── Header ── */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 28px 0 24px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 28px;
+    padding: 28px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 0;
   }
   .brand { display: flex; align-items: center; gap: 12px; }
-  .brand-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    background: var(--accent); display: flex; align-items: center;
-    justify-content: center; font-size: 18px; flex-shrink: 0;
-  }
+  .brand-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
   .brand-name { font-size: 17px; font-weight: 500; letter-spacing: -0.02em; }
   .brand-sub { font-size: 12px; color: var(--text-2); margin-top: 1px; }
   .header-meta { font-size: 12px; color: var(--text-3); text-align: right; }
   .header-meta span { display: block; }
-  .live-dot {
-    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-    background: #27a05a; margin-right: 5px; vertical-align: middle;
-    animation: pulse 2s ease-in-out infinite;
-  }
+  .live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #27a05a; margin-right: 5px; vertical-align: middle; animation: pulse 2s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+  .tab-btn {
+    padding: 16px 20px; font-size: 13px; font-weight: 500; cursor: pointer;
+    border: none; background: none; color: var(--text-2); font-family: 'DM Sans', sans-serif;
+    border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text-1); }
+  .tab-btn.active { color: var(--text-1); border-bottom-color: var(--accent); }
+  .tab-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 16px; border-radius: 99px; font-size: 10px;
+    font-weight: 500; margin-left: 5px; padding: 0 4px;
+    background: var(--bg); color: var(--text-2); border: 1px solid var(--border);
+  }
+  .tab-btn.active .tab-badge { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
   /* ── Stats ── */
-  .stats {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
-    margin-bottom: 24px;
-  }
-  .stat {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px 18px;
-  }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
   .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
   .stat-value { font-size: 28px; font-weight: 300; letter-spacing: -0.03em; color: var(--text-1); font-family: 'DM Mono', monospace; }
   .stat-value.blue { color: var(--blue); }
   .stat-value.urgent { color: var(--urgent); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.amber { color: var(--amber); }
 
   /* ── Controls ── */
-  .controls {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 16px 18px;
-    margin-bottom: 16px;
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  }
+  .controls { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .search-wrap { position: relative; flex: 1; min-width: 200px; }
-  .search-icon {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    color: var(--text-3); font-size: 14px; pointer-events: none;
-  }
-  input[type="text"] {
-    width: 100%; padding: 8px 12px 8px 32px;
-    border: 1px solid var(--border); border-radius: var(--radius-sm);
-    font-family: 'DM Sans', sans-serif; font-size: 13px;
-    background: var(--bg); color: var(--text-1);
-    outline: none; transition: border-color 0.15s;
-  }
+  .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-3); font-size: 14px; pointer-events: none; }
+  input[type="text"] { width: 100%; padding: 8px 12px 8px 32px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; background: var(--bg); color: var(--text-1); outline: none; transition: border-color 0.15s; }
   input[type="text"]:focus { border-color: var(--border-2); }
-  select {
-    padding: 8px 12px; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
-    font-size: 13px; background: var(--bg); color: var(--text-1);
-    outline: none; cursor: pointer; min-width: 150px;
-  }
+  select { padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 13px; background: var(--bg); color: var(--text-1); outline: none; cursor: pointer; min-width: 150px; }
   select:focus { border-color: var(--border-2); }
 
-  /* ── Category pills ── */
+  /* ── Pills ── */
   .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-  .pill {
-    font-size: 11px; font-weight: 500; padding: 5px 11px;
-    border-radius: 20px; cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--surface); color: var(--text-2);
-    transition: all 0.15s; white-space: nowrap;
-    font-family: 'DM Sans', sans-serif;
-  }
+  .pill { font-size: 11px; font-weight: 500; padding: 5px 11px; border-radius: 20px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); transition: all 0.15s; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
   .pill:hover { border-color: var(--border-2); color: var(--text-1); }
   .pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
   /* ── Results bar ── */
-  .results-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px; padding: 0 2px;
-  }
+  .results-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding: 0 2px; }
   .results-count { font-size: 12px; color: var(--text-2); }
-  .clear-btn {
-    font-size: 12px; color: var(--blue); cursor: pointer;
-    background: none; border: none; font-family: 'DM Sans', sans-serif;
-    display: none;
-  }
+  .clear-btn { font-size: 12px; color: var(--blue); cursor: pointer; background: none; border: none; font-family: 'DM Sans', sans-serif; display: none; }
   .clear-btn.visible { display: block; }
 
   /* ── RFP Cards ── */
   .rfp-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .rfp-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px 20px;
-    display: grid; grid-template-columns: 1fr 140px;
-    gap: 16px; align-items: start;
-    transition: border-color 0.15s, transform 0.1s;
-    animation: fadeIn 0.2s ease both;
-  }
+  .rfp-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; display: grid; grid-template-columns: 1fr 140px; gap: 16px; align-items: start; transition: border-color 0.15s, transform 0.1s; animation: fadeIn 0.2s ease both; }
   .rfp-card:hover { border-color: var(--border-2); transform: translateY(-1px); }
   @keyframes fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform:none; } }
-
-  .fit-badge {
-    font-size: 11px; font-weight: 600; padding: 3px 9px;
-    border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em;
-  }
+  .rfp-card.fit-strong-card { border-left: 3px solid #3B6D11; }
+  .rfp-card.urgent-card { border-left: 3px solid var(--urgent); }
+  .fit-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em; }
   .fit-strong { background: #EAF3DE; color: #27500A; }
   .fit-good   { background: #FAEEDA; color: #633806; }
   .fit-monitor{ background: #F1EFE8; color: #5F5E5A; }
-
-  .rfp-card.fit-strong-card { border-left: 3px solid #3B6D11; }
-
   .rfp-top { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 7px; }
-
-  .cat-badge {
-    font-size: 10px; font-weight: 500; padding: 3px 8px;
-    border-radius: 4px; white-space: nowrap; letter-spacing: 0.01em;
-  }
+  .cat-badge { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.01em; }
   .agency-name { font-size: 12px; color: var(--text-2); }
-
-  .rfp-title {
-    font-size: 14px; font-weight: 500; color: var(--text-1);
-    line-height: 1.4; margin-bottom: 6px; letter-spacing: -0.01em;
-  }
+  .rfp-title { font-size: 14px; font-weight: 500; color: var(--text-1); line-height: 1.4; margin-bottom: 6px; letter-spacing: -0.01em; }
   .rfp-summary { font-size: 12px; color: var(--text-2); line-height: 1.7; }
   .rfp-found { font-size: 11px; color: var(--text-3); margin-top: 8px; }
-
   .rfp-meta { text-align: right; }
-  .deadline-label {
-    font-size: 12px; font-weight: 500;
-    color: var(--urgent); white-space: nowrap;
-  }
+  .deadline-label { font-size: 12px; font-weight: 500; color: var(--urgent); white-space: nowrap; }
   .deadline-label.none { color: var(--text-3); font-weight: 400; }
   .deadline-label.ok { color: var(--text-2); }
-  .rfp-num {
-    font-size: 11px; color: var(--text-3); margin-top: 4px;
-    font-family: 'DM Mono', monospace;
-  }
-  .view-link {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12px; color: var(--blue); text-decoration: none;
-    margin-top: 10px; transition: opacity 0.15s;
-  }
+  .rfp-num { font-size: 11px; color: var(--text-3); margin-top: 4px; font-family: 'DM Mono', monospace; }
+  .view-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--blue); text-decoration: none; margin-top: 10px; transition: opacity 0.15s; }
   .view-link:hover { opacity: 0.7; }
   .view-link svg { width: 11px; height: 11px; }
 
-  /* ── Empty state ── */
-  .empty {
-    text-align: center; padding: 64px 24px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--text-2);
-  }
+  /* ── Pipeline Cards ── */
+  .pipeline-list { display: flex; flex-direction: column; gap: 8px; }
+  .pipeline-section-header { font-size: 11px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; padding: 16px 2px 8px; display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--border); margin-top: 8px; }
+  .pipeline-section-header:first-of-type { border-top: none; margin-top: 0; }
+  .pipeline-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; animation: fadeIn 0.2s ease both; transition: border-color 0.15s; }
+  .pipeline-card:hover { border-color: var(--border-2); }
+  .pipeline-card.confirmed { border-left: 3px solid #3B6D11; border-radius: 0 var(--radius) var(--radius) 0; }
+  .pipeline-card.likely    { border-left: 3px solid #BA7517; border-radius: 0 var(--radius) var(--radius) 0; }
+  .pipeline-card.watch     { border-left: 3px solid #888780; border-radius: 0 var(--radius) var(--radius) 0; }
+  .pipeline-card.converted { border-left: 3px solid var(--blue); border-radius: 0 var(--radius) var(--radius) 0; }
+  .conflict-banner { background: #FAEEDA; border-bottom: 1px solid #FAC775; padding: 7px 14px; font-size: 11px; color: #633806; display: flex; align-items: flex-start; gap: 5px; }
+  .pipeline-body { padding: 14px 16px; }
+  .pipeline-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .pipeline-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+  .conf-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .conf-confirmed { background: #EAF3DE; color: #27500A; }
+  .conf-likely    { background: #FAEEDA; color: #633806; }
+  .conf-watch     { background: #F1EFE8; color: #5F5E5A; }
+  .conf-converted { background: #E6F1FB; color: #0C447C; }
+  .opp-type-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 4px; background: var(--bg); color: var(--text-2); border: 1px solid var(--border); white-space: nowrap; }
+  .pipeline-agency { font-size: 11px; color: var(--text-2); white-space: nowrap; }
+  .pipeline-title { font-size: 14px; font-weight: 500; color: var(--text-1); line-height: 1.4; margin-bottom: 5px; letter-spacing: -0.01em; }
+  .pipeline-summary { font-size: 12px; color: var(--text-2); line-height: 1.7; margin-bottom: 8px; }
+  .pipeline-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--text-2); align-items: center; }
+  .pipeline-meta .est-date { color: #854F0B; font-weight: 500; }
+  .pipeline-footer { background: var(--bg); border-top: 1px solid var(--border); padding: 8px 16px; font-size: 11px; color: var(--text-2); display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── Conversion banner ── */
+  .conversion-banner { background: #EAF3DE; border: 1px solid #97C459; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; }
+  .conversion-banner-title { font-size: 12px; font-weight: 600; color: #173404; margin-bottom: 8px; }
+  .conversion-item { font-size: 12px; color: #27500A; padding: 5px 0; border-bottom: 1px solid #C0DD97; display: flex; gap: 8px; align-items: baseline; }
+  .conversion-item:last-child { border-bottom: none; }
+  .conversion-arrow { color: #3B6D11; font-weight: 600; flex-shrink: 0; }
+
+  /* ── Empty / Loading / Error ── */
+  .empty { text-align: center; padding: 64px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-2); }
   .empty-icon { font-size: 32px; margin-bottom: 12px; }
   .empty-title { font-size: 15px; font-weight: 500; color: var(--text-1); margin-bottom: 6px; }
   .empty-sub { font-size: 13px; }
-
-  /* ── Loading ── */
-  .loading {
-    text-align: center; padding: 64px 24px; color: var(--text-2); font-size: 13px;
-  }
-
-  /* ── Error ── */
-  .error-bar {
-    background: #FEF2F2; border: 1px solid #FCA5A5;
-    border-radius: var(--radius); padding: 12px 16px;
-    font-size: 13px; color: #991B1B; margin-bottom: 16px; display: none;
-  }
-
-  @media (max-width: 640px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .rfp-card { grid-template-columns: 1fr; }
-    .rfp-meta { text-align: left; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 4px; }
-    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
-  }
+  .loading { text-align: center; padding: 64px 24px; color: var(--text-2); font-size: 13px; }
+  .error-bar { background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: #991B1B; margin-bottom: 16px; display: none; }
 </style>
 </head>
 <body>
@@ -234,70 +181,89 @@
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Total tracked</div>
-      <div class="stat-value" id="stat-total">—</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">This week</div>
-      <div class="stat-value blue" id="stat-week">—</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Urgent ≤14 days</div>
-      <div class="stat-value urgent" id="stat-urgent">—</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Agencies</div>
-      <div class="stat-value" id="stat-agencies">—</div>
-    </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('active', this)">
+      Active RFPs <span class="tab-badge" id="tab-badge-active">—</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('pipeline', this)">
+      Pipeline <span class="tab-badge" id="tab-badge-pipeline">—</span>
+    </button>
   </div>
 
-  <div class="error-bar" id="error-bar"></div>
-
-  <div class="controls">
-    <div class="search-wrap">
-      <span class="search-icon">⌕</span>
-      <input type="text" id="search" placeholder="Search by title, agency, or keyword…" oninput="renderList()">
+  <!-- ── Active RFPs Tab ── -->
+  <div class="tab-panel active" id="panel-active">
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total tracked</div><div class="stat-value" id="stat-total">—</div></div>
+      <div class="stat"><div class="stat-label">This week</div><div class="stat-value blue" id="stat-week">—</div></div>
+      <div class="stat"><div class="stat-label">Urgent ≤14 days</div><div class="stat-value urgent" id="stat-urgent">—</div></div>
+      <div class="stat"><div class="stat-label">Agencies</div><div class="stat-value" id="stat-agencies">—</div></div>
     </div>
-    <select id="agency-filter" onchange="renderList()">
-      <option value="">All agencies</option>
-    </select>
-    <select id="fit-filter" onchange="renderList()">
-      <option value="">All fit levels</option>
-      <option value="strong">Strong Fit</option>
-      <option value="good">Good Fit</option>
-      <option value="monitor">Monitor</option>
-    </select>
-    <select id="sort" onchange="renderList()">
-      <option value="date-desc">Newest first</option>
-      <option value="date-asc">Oldest first</option>
-      <option value="fit">By fit score</option>
-      <option value="deadline">By deadline</option>
-    </select>
+    <div class="error-bar" id="error-bar"></div>
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="search" placeholder="Search by title, agency, or keyword…" oninput="renderRFPs()">
+      </div>
+      <select id="agency-filter" onchange="renderRFPs()"><option value="">All agencies</option></select>
+      <select id="fit-filter" onchange="renderRFPs()">
+        <option value="">All fit levels</option>
+        <option value="strong">Strong Fit</option>
+        <option value="good">Good Fit</option>
+        <option value="monitor">Monitor</option>
+      </select>
+      <select id="sort" onchange="renderRFPs()">
+        <option value="date-desc">Newest first</option>
+        <option value="date-asc">Oldest first</option>
+        <option value="fit">By fit score</option>
+        <option value="deadline">By deadline</option>
+      </select>
+    </div>
+    <div class="pills" id="cat-pills"></div>
+    <div class="results-bar">
+      <div class="results-count" id="results-count"></div>
+      <button class="clear-btn" id="clear-btn" onclick="clearRFPFilters()">Clear filters</button>
+    </div>
+    <div id="rfp-list"><div class="loading">Loading RFPs…</div></div>
   </div>
 
-  <div class="pills" id="cat-pills"></div>
-
-  <div class="results-bar">
-    <div class="results-count" id="results-count"></div>
-    <button class="clear-btn" id="clear-btn" onclick="clearFilters()">Clear filters</button>
+  <!-- ── Pipeline Tab ── -->
+  <div class="tab-panel" id="panel-pipeline">
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Confirmed</div><div class="stat-value green" id="p-stat-confirmed">—</div></div>
+      <div class="stat"><div class="stat-label">Likely</div><div class="stat-value amber" id="p-stat-likely">—</div></div>
+      <div class="stat"><div class="stat-label">Watch</div><div class="stat-value" id="p-stat-watch">—</div></div>
+      <div class="stat"><div class="stat-label">Total tracked</div><div class="stat-value" id="p-stat-total">—</div></div>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <span class="search-icon">⌕</span>
+        <input type="text" id="p-search" placeholder="Search pipeline by title or agency…" oninput="renderPipeline()">
+      </div>
+      <select id="p-agency-filter" onchange="renderPipeline()"><option value="">All agencies</option></select>
+      <select id="p-confidence-filter" onchange="renderPipeline()">
+        <option value="">All confidence levels</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="likely">Likely</option>
+        <option value="watch">Watch</option>
+      </select>
+      <select id="p-sort" onchange="renderPipeline()">
+        <option value="score-desc">By score</option>
+        <option value="date-asc">By expected date</option>
+        <option value="value-desc">By value</option>
+      </select>
+    </div>
+    <div class="results-bar">
+      <div class="results-count" id="p-results-count"></div>
+      <button class="clear-btn" id="p-clear-btn" onclick="clearPipelineFilters()">Clear filters</button>
+    </div>
+    <div id="pipeline-list"><div class="loading">Loading pipeline…</div></div>
   </div>
-
-  <div id="rfp-list"><div class="loading">Loading RFPs…</div></div>
 
 </div>
 
 <script>
-const DATA_URL = "https://raw.githubusercontent.com/avtobin/transit-rfp-radar/main/data/rfps.json";
-
-const FIT_META = {
-  strong:  { label: "Strong Fit", cls: "fit-strong" },
-  good:    { label: "Good Fit",   cls: "fit-good"   },
-  monitor: { label: "Monitor",    cls: "fit-monitor" },
-};
-
-const FIT_ORDER = { strong: 0, good: 1, monitor: 2 };
+const RFPS_URL     = "https://raw.githubusercontent.com/avtobin/transit-rfp-radar/main/data/rfps.json";
+const PIPELINE_URL = "https://raw.githubusercontent.com/avtobin/transit-rfp-radar/main/data/pipeline.json";
 
 const CAT_META = {
   pm:    { label: "Program / Project Mgmt", bg: "#EEEDFE", text: "#26215C" },
@@ -313,33 +279,76 @@ const CAT_META = {
   proc:  { label: "Procurement Advisory",    bg: "#FFF7ED", text: "#7C2D12" },
 };
 
-let ALL_RFPS = [];
+const FIT_META = {
+  strong:  { label: "Strong Fit", cls: "fit-strong" },
+  good:    { label: "Good Fit",   cls: "fit-good"   },
+  monitor: { label: "Monitor",    cls: "fit-monitor" },
+};
+const FIT_ORDER = { strong: 0, good: 1, monitor: 2 };
+
+const CONF_META = {
+  confirmed: { label: "Confirmed", cls: "conf-confirmed" },
+  likely:    { label: "Likely",    cls: "conf-likely"    },
+  watch:     { label: "Watch",     cls: "conf-watch"     },
+  converted: { label: "→ Active",  cls: "conf-converted" },
+};
+
+let ALL_RFPS     = [];
+let ALL_PIPELINE = [];
 let activeCategories = new Set();
+let currentTab = "active";
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("panel-" + tab).classList.add("active");
+}
+
+// ── Date helpers ───────────────────────────────────────────────────────────────
 
 function parseDeadline(s) {
   if (!s || s === "Not specified") return null;
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
-
 function daysUntil(d) {
   if (!d) return null;
   return Math.ceil((d - new Date()) / 86400000);
 }
-
 function fmtDate(s) {
   const d = parseDeadline(s);
   if (!d) return null;
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
-
 function fmtFoundDate(s) {
   if (!s) return "";
   const d = new Date(s);
   return isNaN(d.getTime()) ? s : d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
+function fmtValue(v) {
+  if (!v) return null;
+  try { return "$" + parseInt(v).toLocaleString(); } catch { return null; }
+}
 
-function updateStats(rfps) {
+// ── Confidence tier ────────────────────────────────────────────────────────────
+
+const SOURCE_RANK = { active_portal: 1, lookahead: 2, board_action: 3, external_intel: 4, budget_cip: 5 };
+
+function getConfidenceTier(opp) {
+  if (opp.status === "active_rfp") return "converted";
+  const rank = SOURCE_RANK[opp.winning_source] || 5;
+  if (rank <= 2) return "confirmed";
+  if (rank <= 3) return "likely";
+  return "watch";
+}
+
+// ── Active RFPs ────────────────────────────────────────────────────────────────
+
+function updateRFPStats() {
   const now = new Date();
   const weekAgo = new Date(now - 7 * 86400000);
   document.getElementById("stat-total").textContent = ALL_RFPS.length;
@@ -350,55 +359,49 @@ function updateStats(rfps) {
     return days !== null && days >= 0 && days <= 14;
   }).length;
   document.getElementById("stat-agencies").textContent = new Set(ALL_RFPS.map(r => r.agency_id || r.agency)).size;
+  document.getElementById("tab-badge-active").textContent = ALL_RFPS.length;
 }
 
-function buildFilters() {
+function buildRFPFilters() {
   const agencies = [...new Set(ALL_RFPS.map(r => r.agency))].sort();
   const sel = document.getElementById("agency-filter");
-  agencies.forEach(a => {
-    const o = document.createElement("option");
-    o.value = a; o.textContent = a; sel.appendChild(o);
-  });
+  agencies.forEach(a => { const o = document.createElement("option"); o.value = a; o.textContent = a; sel.appendChild(o); });
 
   const cats = [...new Set(ALL_RFPS.map(r => r.category).filter(Boolean))];
   const wrap = document.getElementById("cat-pills");
   cats.forEach(c => {
-    const meta = CAT_META[c] || { label: c, bg: "#eee", text: "#333" };
+    const meta = CAT_META[c] || { label: c };
     const p = document.createElement("button");
     p.className = "pill"; p.textContent = meta.label; p.dataset.cat = c;
     p.onclick = () => {
       if (activeCategories.has(c)) { activeCategories.delete(c); p.classList.remove("active"); }
       else { activeCategories.add(c); p.classList.add("active"); }
-      renderList();
+      renderRFPs();
     };
     wrap.appendChild(p);
   });
 }
 
-function clearFilters() {
+function clearRFPFilters() {
   document.getElementById("search").value = "";
   document.getElementById("agency-filter").value = "";
   document.getElementById("fit-filter").value = "";
   document.getElementById("sort").value = "date-desc";
   activeCategories.clear();
   document.querySelectorAll(".pill").forEach(p => p.classList.remove("active"));
-  renderList();
+  renderRFPs();
 }
 
-function renderList() {
-  const q   = document.getElementById("search").value.toLowerCase().trim();
-  const ag  = document.getElementById("agency-filter").value;
-  const fit = document.getElementById("fit-filter").value;
+function renderRFPs() {
+  const q    = document.getElementById("search").value.toLowerCase().trim();
+  const ag   = document.getElementById("agency-filter").value;
+  const fit  = document.getElementById("fit-filter").value;
   const sort = document.getElementById("sort").value;
   const hasFilters = q || ag || fit || activeCategories.size;
-
   document.getElementById("clear-btn").classList.toggle("visible", !!hasFilters);
 
   let list = ALL_RFPS.filter(r => {
-    if (q) {
-      const hay = [r.title, r.agency, r.summary, r.rfp_number].join(" ").toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
+    if (q && ![r.title, r.agency, r.summary, r.rfp_number].join(" ").toLowerCase().includes(q)) return false;
     if (ag && r.agency !== ag) return false;
     if (fit && r.fit !== fit) return false;
     if (activeCategories.size && !activeCategories.has(r.category)) return false;
@@ -408,57 +411,36 @@ function renderList() {
   if (sort === "date-desc") list.sort((a, b) => (b._found_date || "").localeCompare(a._found_date || ""));
   else if (sort === "date-asc") list.sort((a, b) => (a._found_date || "").localeCompare(b._found_date || ""));
   else if (sort === "fit") list.sort((a, b) => (FIT_ORDER[a.fit] ?? 2) - (FIT_ORDER[b.fit] ?? 2));
-  else if (sort === "deadline") {
-    list.sort((a, b) => {
-      const da = parseDeadline(a.deadline), db = parseDeadline(b.deadline);
-      if (!da && !db) return 0;
-      if (!da) return 1;
-      if (!db) return -1;
-      return da - db;
-    });
-  }
+  else if (sort === "deadline") list.sort((a, b) => {
+    const da = parseDeadline(a.deadline), db = parseDeadline(b.deadline);
+    if (!da && !db) return 0; if (!da) return 1; if (!db) return -1; return da - db;
+  });
 
-  const count = list.length;
   document.getElementById("results-count").textContent =
-    count === ALL_RFPS.length ? `${count} RFPs` : `${count} of ${ALL_RFPS.length} RFPs`;
+    list.length === ALL_RFPS.length ? `${list.length} RFPs` : `${list.length} of ${ALL_RFPS.length} RFPs`;
 
   const container = document.getElementById("rfp-list");
-
   if (!list.length) {
-    container.innerHTML = `
-      <div class="empty">
-        <div class="empty-icon">🔍</div>
-        <div class="empty-title">No RFPs match your filters</div>
-        <div class="empty-sub">Try adjusting your search or clearing the filters.</div>
-      </div>`;
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No RFPs match your filters</div><div class="empty-sub">Try adjusting your search or clearing the filters.</div></div>`;
     return;
   }
 
   container.innerHTML = list.map((r, i) => {
-    const meta = CAT_META[r.category] || { label: r.category || "Other", bg: "#F1EFE8", text: "#444" };
-    const fitMeta = FIT_META[r.fit] || FIT_META["monitor"];
-    const isStrongFit = r.fit === "strong";
+    const meta     = CAT_META[r.category] || { label: r.category || "Other", bg: "#F1EFE8", text: "#444" };
+    const fitMeta  = FIT_META[r.fit] || FIT_META["monitor"];
+    const isStrong = r.fit === "strong";
     const dl = parseDeadline(r.deadline);
     const days = daysUntil(dl);
     const dlStr = fmtDate(r.deadline);
     const isUrgent = days !== null && days >= 0 && days <= 14;
-    const isPast = days !== null && days < 0;
+    const isPast   = days !== null && days < 0;
     const num = r.rfp_number && r.rfp_number !== "Not specified" ? r.rfp_number : null;
     const url = r.url && r.url !== "#" ? r.url : null;
-
-    let dlHTML = "";
-    if (isUrgent) {
-      dlHTML = `<div class="deadline-label">⚡ Due ${dlStr}</div>`;
-    } else if (isPast) {
-      dlHTML = `<div class="deadline-label none">Closed ${dlStr}</div>`;
-    } else if (dlStr) {
-      dlHTML = `<div class="deadline-label ok">Due ${dlStr}</div>`;
-    } else {
-      dlHTML = `<div class="deadline-label none">No deadline listed</div>`;
-    }
-
-    return `
-    <div class="rfp-card${isStrongFit ? " fit-strong-card" : ""}${isUrgent ? " urgent-card" : ""}" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
+    let dlHTML = isUrgent ? `<div class="deadline-label">⚡ Due ${dlStr}</div>`
+               : isPast   ? `<div class="deadline-label none">Closed ${dlStr}</div>`
+               : dlStr    ? `<div class="deadline-label ok">Due ${dlStr}</div>`
+               :             `<div class="deadline-label none">No deadline listed</div>`;
+    return `<div class="rfp-card${isStrong ? " fit-strong-card" : ""}${isUrgent ? " urgent-card" : ""}" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
       <div>
         <div class="rfp-top">
           <span class="fit-badge ${fitMeta.cls}">${fitMeta.label}</span>
@@ -478,46 +460,181 @@ function renderList() {
   }).join("");
 }
 
-async function loadData() {
+// ── Pipeline ───────────────────────────────────────────────────────────────────
+
+function updatePipelineStats() {
+  const tiers = ALL_PIPELINE.map(getConfidenceTier);
+  document.getElementById("p-stat-confirmed").textContent = tiers.filter(t => t === "confirmed").length;
+  document.getElementById("p-stat-likely").textContent    = tiers.filter(t => t === "likely").length;
+  document.getElementById("p-stat-watch").textContent     = tiers.filter(t => t === "watch").length;
+  document.getElementById("p-stat-total").textContent     = ALL_PIPELINE.length;
+  document.getElementById("tab-badge-pipeline").textContent = ALL_PIPELINE.length;
+}
+
+function buildPipelineFilters() {
+  const agencies = [...new Set(ALL_PIPELINE.map(r => r.agency))].sort();
+  const sel = document.getElementById("p-agency-filter");
+  agencies.forEach(a => { const o = document.createElement("option"); o.value = a; o.textContent = a; sel.appendChild(o); });
+}
+
+function clearPipelineFilters() {
+  document.getElementById("p-search").value = "";
+  document.getElementById("p-agency-filter").value = "";
+  document.getElementById("p-confidence-filter").value = "";
+  document.getElementById("p-sort").value = "score-desc";
+  renderPipeline();
+}
+
+function renderPipeline() {
+  const q    = document.getElementById("p-search").value.toLowerCase().trim();
+  const ag   = document.getElementById("p-agency-filter").value;
+  const conf = document.getElementById("p-confidence-filter").value;
+  const sort = document.getElementById("p-sort").value;
+  const hasFilters = q || ag || conf;
+  document.getElementById("p-clear-btn").classList.toggle("visible", !!hasFilters);
+
+  let list = ALL_PIPELINE.filter(r => {
+    if (q && ![r.title, r.agency, r.why_it_matters].join(" ").toLowerCase().includes(q)) return false;
+    if (ag && r.agency !== ag) return false;
+    const tier = getConfidenceTier(r);
+    if (conf && tier !== conf) return false;
+    return true;
+  });
+
+  if (sort === "score-desc") list.sort((a, b) => (b.score || 0) - (a.score || 0));
+  else if (sort === "date-asc") list.sort((a, b) => {
+    if (!a.expected_rfp_date && !b.expected_rfp_date) return 0;
+    if (!a.expected_rfp_date) return 1; if (!b.expected_rfp_date) return -1;
+    return new Date(a.expected_rfp_date) - new Date(b.expected_rfp_date);
+  });
+  else if (sort === "value-desc") list.sort((a, b) => (b.estimated_value || 0) - (a.estimated_value || 0));
+
+  document.getElementById("p-results-count").textContent =
+    list.length === ALL_PIPELINE.length ? `${list.length} opportunities` : `${list.length} of ${ALL_PIPELINE.length} opportunities`;
+
+  const container = document.getElementById("pipeline-list");
+  if (!list.length) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No opportunities match your filters</div><div class="empty-sub">Try adjusting your search or clearing the filters.</div></div>`;
+    return;
+  }
+
+  // Check for conversions
+  const conversions = list.filter(r => r.status === "active_rfp");
+  let html = "";
+
+  if (conversions.length) {
+    html += `<div class="conversion-banner"><div class="conversion-banner-title">→ ${conversions.length} pipeline opportunit${conversions.length === 1 ? "y" : "ies"} now active</div>`;
+    conversions.forEach(c => {
+      html += `<div class="conversion-item"><span class="conversion-arrow">→</span><span>${c.agency} · <strong>${c.title}</strong>${c.due_date ? ` · Due ${c.due_date}` : ""}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  const TIER_ORDER = { converted: 0, confirmed: 1, likely: 2, watch: 3 };
+  const nonConverted = list.filter(r => r.status !== "active_rfp");
+
+  const tiers = [
+    { key: "confirmed", label: "Confirmed — agency published lookahead", color: "#27500A" },
+    { key: "likely",    label: "Likely — board approved funding",         color: "#854F0B" },
+    { key: "watch",     label: "Watch — budget signal only",              color: "#5F5E5A" },
+  ];
+
+  tiers.forEach(({ key, label, color }) => {
+    const items = nonConverted.filter(r => getConfidenceTier(r) === key);
+    if (!items.length) return;
+    html += `<div class="pipeline-section-header" style="color:${color}">${label}</div>`;
+    html += items.map((r, i) => renderPipelineCard(r, i)).join("");
+  });
+
+  container.innerHTML = html;
+}
+
+function renderPipelineCard(r, i) {
+  const tier     = getConfidenceTier(r);
+  const confMeta = CONF_META[tier] || CONF_META["watch"];
+  const dateStr  = r.expected_rfp_date || "No date yet";
+  const valStr   = fmtValue(r.estimated_value);
+  const src      = (r.sources || [])[0] || {};
+  const conflict = r.date_conflict;
+
+  let conflictBanner = "";
+  if (conflict) {
+    const dated = (r.sources || []).filter(s => s.estimated_date).sort((a, b) => (SOURCE_RANK[a.type] || 9) - (SOURCE_RANK[b.type] || 9));
+    conflictBanner = `<div class="conflict-banner">⚠ Date conflict — ${dated.map(s => `${s.label}: ${s.estimated_date}`).join(" vs ")} · Using ${dated[0] ? dated[0].label : "best available"}</div>`;
+  }
+
+  return `<div class="pipeline-card ${tier}" style="animation-delay:${Math.min(i * 0.03, 0.3)}s">
+    ${conflictBanner}
+    <div class="pipeline-body">
+      <div class="pipeline-top">
+        <div class="pipeline-badges">
+          <span class="conf-badge ${confMeta.cls}">${confMeta.label}</span>
+          ${r.opportunity_type ? `<span class="opp-type-badge">${r.opportunity_type}</span>` : ""}
+          ${r.pursuit_tier && r.pursuit_tier !== "Unscored" ? `<span class="opp-type-badge">${r.pursuit_tier}</span>` : ""}
+        </div>
+        <span class="pipeline-agency">${r.agency || ""}</span>
+      </div>
+      <div class="pipeline-title">${r.title || "Untitled"}</div>
+      ${r.why_it_matters ? `<div class="pipeline-summary">${r.why_it_matters}</div>` : ""}
+      <div class="pipeline-meta">
+        <span class="${r.expected_rfp_date ? "est-date" : ""}">📅 ${dateStr}</span>
+        ${valStr ? `<span>$ ${valStr}</span>` : ""}
+        ${src.label ? `<span>Source: <a href="${src.url || "#"}" target="_blank" style="color:var(--blue);text-decoration:none;">${src.label}</a></span>` : ""}
+      </div>
+    </div>
+    <div class="pipeline-footer">
+      ${r.contact ? `<span>👤 ${r.contact}</span>` : ""}
+      ${r.incumbent ? `<span>Incumbent: ${r.incumbent}</span>` : ""}
+      ${r.next_action ? `<span style="color:var(--text-1);">${r.next_action}</span>` : ""}
+    </div>
+  </div>`;
+}
+
+// ── Data loading ───────────────────────────────────────────────────────────────
+
+async function loadRFPs() {
   try {
-    const res = await fetch(DATA_URL);
+    const res = await fetch(RFPS_URL);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const raw = await res.json();
-
-    // seen_rfps.json may be an array of ID strings (old format)
-    // or an array of RFP objects (new format) — handle both
-    if (!Array.isArray(raw)) throw new Error("Unexpected data format");
-
+    if (!Array.isArray(raw)) throw new Error("Unexpected format");
     if (raw.length === 0 || typeof raw[0] === "string") {
-      // Old format: just a list of hash IDs — nothing to display yet
-      document.getElementById("rfp-list").innerHTML = `
-        <div class="empty">
-          <div class="empty-icon">📡</div>
-          <div class="empty-title">Radar is running</div>
-          <div class="empty-sub">RFP details will appear here after the next daily run completes.</div>
-        </div>`;
+      document.getElementById("rfp-list").innerHTML = `<div class="empty"><div class="empty-icon">📡</div><div class="empty-title">Radar is running</div><div class="empty-sub">RFP details will appear here after the next daily run completes.</div></div>`;
       document.getElementById("stat-total").textContent = raw.length;
       ["stat-week","stat-urgent","stat-agencies"].forEach(id => document.getElementById(id).textContent = "—");
+      document.getElementById("tab-badge-active").textContent = raw.length;
       return;
     }
-
     ALL_RFPS = raw;
-    document.getElementById("last-updated").textContent =
-      "Updated " + new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-
-    updateStats(ALL_RFPS);
-    buildFilters();
-    renderList();
-
+    document.getElementById("last-updated").textContent = "Updated " + new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    updateRFPStats();
+    buildRFPFilters();
+    renderRFPs();
   } catch (err) {
     const bar = document.getElementById("error-bar");
     bar.style.display = "block";
-    bar.textContent = `Could not load RFP data: ${err.message}. Check that the repo is public and seen_rfps.json exists.`;
+    bar.textContent = `Could not load RFP data: ${err.message}`;
     document.getElementById("rfp-list").innerHTML = "";
   }
 }
 
-loadData();
+async function loadPipeline() {
+  try {
+    const res = await fetch(PIPELINE_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+    if (!Array.isArray(raw)) throw new Error("Unexpected format");
+    ALL_PIPELINE = raw;
+    updatePipelineStats();
+    buildPipelineFilters();
+    renderPipeline();
+  } catch (err) {
+    document.getElementById("pipeline-list").innerHTML = `<div class="empty"><div class="empty-icon">📡</div><div class="empty-title">Pipeline loading failed</div><div class="empty-sub">${err.message}</div></div>`;
+  }
+}
+
+loadRFPs();
+loadPipeline();
 </script>
 </body>
 </html>
