@@ -195,43 +195,69 @@
 
   <!-- ── Summary Tab ── -->
   <div class="tab-panel active" id="panel-summary">
-    <div class="stats" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px;">
-      <div class="stat"><div class="stat-label">Active RFPs tracked</div><div class="stat-value blue" id="s-stat-rfps">—</div></div>
-      <div class="stat"><div class="stat-label">Pipeline opportunities</div><div class="stat-value" id="s-stat-pipeline">—</div></div>
-      <div class="stat"><div class="stat-label">Total pipeline value</div><div class="stat-value green" id="s-stat-value">—</div></div>
+
+    <!-- Hero stat -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <div style="font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Total pipeline value tracked</div>
+        <div style="font-size: 44px; font-weight: 300; letter-spacing: -0.04em; color: #3B6D11; font-family: 'DM Mono', monospace;" id="s-stat-value">—</div>
+        <div style="font-size: 12px; color: var(--text-2); margin-top: 4px;" id="s-hero-sub">— opportunities across — agencies</div>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <div style="text-align: center; padding: 14px 20px; background: var(--bg); border-radius: var(--radius); min-width: 90px;">
+          <div style="font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;">Agencies monitored</div>
+          <div style="font-size: 26px; font-weight: 300; font-family: 'DM Mono', monospace; color: var(--text-1);" id="s-stat-agencies">31</div>
+        </div>
+        <div style="text-align: center; padding: 14px 20px; background: var(--bg); border-radius: var(--radius); min-width: 90px;">
+          <div style="font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px;">Converted to RFP</div>
+          <div style="font-size: 26px; font-weight: 300; font-family: 'DM Mono', monospace; color: #185FA5;" id="s-stat-converted">—</div>
+        </div>
+      </div>
     </div>
-    <div class="stats" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+
+    <!-- Section: Active RFPs -->
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 2px 8px; border-bottom: 1px solid var(--border); margin-bottom: 12px;">
+      Active RFPs
+    </div>
+    <div class="stats" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+      <div class="stat"><div class="stat-label">Total tracked</div><div class="stat-value blue" id="s-stat-rfps">—</div></div>
+      <div class="stat"><div class="stat-label">Found this week</div><div class="stat-value blue" id="s-stat-week">—</div></div>
       <div class="stat"><div class="stat-label">Urgent ≤14 days</div><div class="stat-value urgent" id="s-stat-urgent">—</div></div>
-      <div class="stat"><div class="stat-label">Confirmed pipeline</div><div class="stat-value green" id="s-stat-confirmed">—</div></div>
-      <div class="stat"><div class="stat-label">Likely pipeline</div><div class="stat-value amber" id="s-stat-likely">—</div></div>
-      <div class="stat"><div class="stat-label">Converted to RFP</div><div class="stat-value blue" id="s-stat-converted">—</div></div>
+      <div class="stat"><div class="stat-label">Strong fit</div><div class="stat-value green" id="s-stat-strong">—</div></div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+    <!-- Section: Pipeline Intelligence -->
+    <div style="font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; padding: 4px 2px 8px; border-bottom: 1px solid var(--border); margin-bottom: 12px;">
+      Pipeline Intelligence
+    </div>
+    <div class="stats" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">
+      <div class="stat"><div class="stat-label">Total opportunities</div><div class="stat-value" id="s-stat-pipeline">—</div></div>
+      <div class="stat"><div class="stat-label">Confirmed lookahead</div><div class="stat-value green" id="s-stat-confirmed">—</div></div>
+      <div class="stat"><div class="stat-label">Likely — funded</div><div class="stat-value amber" id="s-stat-likely">—</div></div>
+      <div class="stat"><div class="stat-label">Watch — budget signal</div><div class="stat-value" id="s-stat-watch">—</div></div>
+    </div>
 
-      <!-- Active RFPs by agency -->
+    <!-- Bar charts -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;">
         <div style="font-size: 11px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">Active RFPs by agency</div>
         <div id="s-rfp-by-agency"><div style="font-size:12px;color:var(--text-3);">Loading…</div></div>
       </div>
-
-      <!-- Pipeline by confidence -->
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;">
         <div style="font-size: 11px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">Pipeline by agency</div>
         <div id="s-pipeline-by-agency"><div style="font-size:12px;color:var(--text-3);">Loading…</div></div>
       </div>
-
     </div>
 
     <!-- Urgent RFPs -->
     <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px;">
-      <div style="font-size: 11px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">⚡ Urgent — due within 14 days</div>
+      <div style="font-size: 11px; font-weight: 500; color: var(--urgent); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">⚡ Urgent — due within 14 days</div>
       <div id="s-urgent-list"><div style="font-size:12px;color:var(--text-3);">Loading…</div></div>
     </div>
 
-    <!-- Confirmed pipeline coming up -->
-    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px;">
-      <div style="font-size: 11px; font-weight: 500; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">Confirmed pipeline — agency published lookahead</div>
+    <!-- Confirmed pipeline -->
+    <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3B6D11; border-radius: 0 var(--radius) var(--radius) 0; padding: 18px 20px;">
+      <div style="font-size: 11px; font-weight: 500; color: #27500A; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px;">Confirmed pipeline — agency published lookahead</div>
       <div id="s-confirmed-list"><div style="font-size:12px;color:var(--text-3);">Loading…</div></div>
     </div>
   </div>
@@ -521,51 +547,59 @@ function updatePipelineStats() {
 }
 
 function buildSummary() {
-  // Top stat cards
-  document.getElementById("s-stat-rfps").textContent      = ALL_RFPS.length;
-  document.getElementById("s-stat-pipeline").textContent  = ALL_PIPELINE.length;
-  const totalVal = ALL_PIPELINE.reduce((s, r) => s + (r.estimated_value || 0), 0);
-  document.getElementById("s-stat-value").textContent     = "$" + (totalVal / 1000000).toFixed(0) + "M+";
+  const now = new Date();
+  const weekAgo = new Date(now - 7 * 86400000);
 
+  // Hero
+  const totalVal = ALL_PIPELINE.reduce((s, r) => s + (r.estimated_value || 0), 0);
+  document.getElementById("s-stat-value").textContent = "$" + (totalVal / 1000000).toFixed(0) + "M+";
+  const agencyCount = new Set(ALL_PIPELINE.map(r => r.agency_id)).size;
+  document.getElementById("s-hero-sub").textContent = `${ALL_PIPELINE.length} opportunities across ${agencyCount} agencies`;
+  document.getElementById("s-stat-converted").textContent = ALL_PIPELINE.map(getConfidenceTier).filter(t => t === "converted").length;
+
+  // Active RFPs section
+  document.getElementById("s-stat-rfps").textContent   = ALL_RFPS.length;
+  document.getElementById("s-stat-week").textContent   = ALL_RFPS.filter(r => r._found_date && new Date(r._found_date) >= weekAgo).length;
+  document.getElementById("s-stat-urgent").textContent = ALL_RFPS.filter(r => { const d = parseDeadline(r.deadline); const days = daysUntil(d); return days !== null && days >= 0 && days <= 14; }).length;
+  document.getElementById("s-stat-strong").textContent = ALL_RFPS.filter(r => r.fit === "strong").length;
+
+  // Pipeline section
   const tiers = ALL_PIPELINE.map(getConfidenceTier);
+  document.getElementById("s-stat-pipeline").textContent  = ALL_PIPELINE.length;
   document.getElementById("s-stat-confirmed").textContent = tiers.filter(t => t === "confirmed").length;
   document.getElementById("s-stat-likely").textContent    = tiers.filter(t => t === "likely").length;
-  document.getElementById("s-stat-converted").textContent = tiers.filter(t => t === "converted").length;
+  document.getElementById("s-stat-watch").textContent     = tiers.filter(t => t === "watch").length;
 
-  const urgentCount = ALL_RFPS.filter(r => {
-    const d = parseDeadline(r.deadline); const days = daysUntil(d);
-    return days !== null && days >= 0 && days <= 14;
-  }).length;
-  document.getElementById("s-stat-urgent").textContent = urgentCount;
-
-  // RFPs by agency
+  // RFPs by agency bar chart
   const rfpByAgency = {};
   ALL_RFPS.forEach(r => { rfpByAgency[r.agency] = (rfpByAgency[r.agency] || 0) + 1; });
   const rfpAgencies = Object.entries(rfpByAgency).sort((a, b) => b[1] - a[1]).slice(0, 8);
   const maxRfp = rfpAgencies[0]?.[1] || 1;
   document.getElementById("s-rfp-by-agency").innerHTML = rfpAgencies.length
     ? rfpAgencies.map(([agency, count]) => `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <div style="font-size:12px;color:var(--text-1);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${agency}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+        <div style="font-size:12px;color:var(--text-1);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${agency}</div>
         <div style="flex:1;background:var(--bg);border-radius:3px;height:6px;">
           <div style="width:${Math.round(count/maxRfp*100)}%;background:#185FA5;height:6px;border-radius:3px;"></div>
         </div>
-        <div style="font-size:12px;font-weight:500;color:var(--text-1);min-width:20px;text-align:right;">${count}</div>
+        <div style="font-size:12px;font-weight:500;color:#185FA5;min-width:24px;text-align:right;">${count}</div>
       </div>`).join("")
     : `<div style="font-size:12px;color:var(--text-3);">No active RFPs yet — check back Monday.</div>`;
 
-  // Pipeline by agency
+  // Pipeline by agency bar chart with percentages
   const plByAgency = {};
   ALL_PIPELINE.forEach(r => { plByAgency[r.agency] = (plByAgency[r.agency] || 0) + 1; });
   const plAgencies = Object.entries(plByAgency).sort((a, b) => b[1] - a[1]);
   const maxPl = plAgencies[0]?.[1] || 1;
+  const totalPl = ALL_PIPELINE.length;
   document.getElementById("s-pipeline-by-agency").innerHTML = plAgencies.map(([agency, count]) => `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-      <div style="font-size:12px;color:var(--text-1);width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${agency}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+      <div style="font-size:12px;color:var(--text-1);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${agency}</div>
       <div style="flex:1;background:var(--bg);border-radius:3px;height:6px;">
         <div style="width:${Math.round(count/maxPl*100)}%;background:#3B6D11;height:6px;border-radius:3px;"></div>
       </div>
-      <div style="font-size:12px;font-weight:500;color:var(--text-1);min-width:20px;text-align:right;">${count}</div>
+      <div style="font-size:12px;font-weight:500;color:#3B6D11;min-width:24px;text-align:right;">${count}</div>
+      <div style="font-size:11px;color:var(--text-3);min-width:32px;text-align:right;">${Math.round(count/totalPl*100)}%</div>
     </div>`).join("");
 
   // Urgent RFPs
@@ -573,32 +607,30 @@ function buildSummary() {
     const d = parseDeadline(r.deadline); const days = daysUntil(d);
     return days !== null && days >= 0 && days <= 14;
   }).sort((a, b) => parseDeadline(a.deadline) - parseDeadline(b.deadline));
-
   document.getElementById("s-urgent-list").innerHTML = urgentRFPs.length
     ? urgentRFPs.map(r => `
-      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
         <div>
-          <span style="font-weight:500;color:var(--text-1);">${r.title}</span>
-          <span style="color:var(--text-2);margin-left:8px;">${r.agency}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text-1);">${r.title}</span>
+          <span style="font-size:12px;color:var(--text-2);margin-left:8px;">${r.agency}</span>
         </div>
-        <span style="color:#993C1D;font-weight:500;white-space:nowrap;margin-left:16px;">Due ${fmtDate(r.deadline)}</span>
+        <span style="font-size:12px;color:#993C1D;font-weight:500;white-space:nowrap;margin-left:16px;">Due ${fmtDate(r.deadline)}</span>
       </div>`).join("")
     : `<div style="font-size:12px;color:var(--text-3);">No urgent deadlines in the next 14 days.</div>`;
 
-  // Confirmed pipeline
+  // Confirmed pipeline with green left border treatment
   const confirmed = ALL_PIPELINE.filter(r => getConfidenceTier(r) === "confirmed")
     .sort((a, b) => (b.score || 0) - (a.score || 0));
-
   document.getElementById("s-confirmed-list").innerHTML = confirmed.length
     ? confirmed.map(r => `
-      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0 9px 12px;border-bottom:1px solid #E8F5D8;border-left:2px solid #97C459;margin-bottom:4px;gap:12px;">
         <div style="flex:1;min-width:0;">
-          <span style="font-weight:500;color:var(--text-1);">${r.title}</span>
-          <span style="color:var(--text-2);margin-left:8px;">${r.agency}</span>
+          <div style="font-size:13px;font-weight:500;color:var(--text-1);line-height:1.4;">${r.title}</div>
+          <div style="font-size:11px;color:var(--text-2);margin-top:2px;">${r.agency}</div>
         </div>
-        <div style="display:flex;gap:12px;align-items:center;flex-shrink:0;margin-left:16px;">
-          ${r.expected_rfp_date ? `<span style="color:#854F0B;font-weight:500;white-space:nowrap;">${r.expected_rfp_date}</span>` : ""}
-          ${r.estimated_value ? `<span style="color:var(--text-2);white-space:nowrap;">$${(r.estimated_value/1000000).toFixed(1)}M</span>` : ""}
+        <div style="display:flex;gap:14px;align-items:center;flex-shrink:0;">
+          ${r.expected_rfp_date ? `<span style="font-size:12px;color:#854F0B;font-weight:500;white-space:nowrap;">${r.expected_rfp_date}</span>` : ""}
+          ${r.estimated_value ? `<span style="font-size:12px;color:var(--text-2);white-space:nowrap;">$${(r.estimated_value/1000000).toFixed(1)}M</span>` : ""}
         </div>
       </div>`).join("")
     : `<div style="font-size:12px;color:var(--text-3);">No confirmed pipeline items yet.</div>`;
