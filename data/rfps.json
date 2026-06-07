@@ -1,1 +1,72 @@
-[{"title":"Transit Facilities Maintenance and Signposting Services","summary":"LADOT seeks proposals to manage, maintain, and landscape twelve facilities including five Metrolink stations, two park-and-ride lots, one passenger transit hub, and one vacant lot. Work includes sign management and maintenance. Five-year contract expected to extend through 2027 Super Bowl and 2028 Olympic Games.","deadline":"February 18 2026","issue_date":"February 18 2026","category":"om","rfp_number":"216028","url":"https://www.rampla.org/s/","agency":"LADOT","agency_id":"ladot","_id":"59604a4750edbca952bb55b7","_found_date":"2026-06-06","fit":"monitor"},{"title":"Rapid Response Contractors for LIRR State of Good Repair Work","summary":"LIRR is seeking rapid response contractors to support state of good repair maintenance and repair work across the railroad system. This is an on-call/as-needed contract for ongoing operational maintenance activities.","deadline":"Not specified","issue_date":"Not specified","category":"om","rfp_number":"0000534324","url":"https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road","agency":"NY MTA — Long Island Rail Road","agency_id":"nymta_lirr","_id":"15faa0e4d8c01b155f37fc26","_found_date":"2026-06-06","fit":"monitor"},{"title":"Continuous Welded Rail (CWR) Hauling Train","summary":"LIRR is soliciting a Request for Expression of Interest (RFEI) for continuous welded rail hauling train services to support railroad infrastructure maintenance and replacement activities.","deadline":"Not specified","issue_date":"May 22 2026","category":"om","rfp_number":"R.F.E.I 05.22.26","url":"https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road","agency":"NY MTA — Long Island Rail Road","agency_id":"nymta_lirr","_id":"ffa5a28f8e131e78094ad930","_found_date":"2026-06-06","fit":"monitor"}]
+[
+  {
+    "title": "Management Consulting",
+    "summary": "RFP soliciting management consulting firms to provide as-needed advisory and consulting services in corporate strategy, business process optimization, and transportation operations strategy. Five-year agreements with multiple firms as a pool to serve the MTA on an as-needed basis.",
+    "deadline": "Jun 12 2026",
+    "issue_date": "May 12 2026",
+    "category": "adv",
+    "rfp_number": "RFP#16320",
+    "url": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters",
+    "agency": "NY MTA \u2014 Headquarters",
+    "agency_id": "nymta_hq",
+    "_id": "b6c4bc1e099779e20d8e5a09",
+    "_found_date": "2026-06-07",
+    "fit": "good"
+  },
+  {
+    "title": "Enterprise Asset Management (EAM) Improvement Program - Technical and Management Consulting Services",
+    "summary": "RFP for technical and management consulting services supporting the MTA's Enterprise Asset Management (EAM) Program. Multi-firm retainer contract with seven-year term and three one-year options; work assignments issued through mini-RFP process. Total estimated value $135 million.",
+    "deadline": "Not specified",
+    "issue_date": "May 06 2025",
+    "category": "asset",
+    "rfp_number": "Not specified",
+    "url": "https://www.mta.info/document/192246",
+    "agency": "NY MTA \u2014 Headquarters",
+    "agency_id": "nymta_hq",
+    "_id": "1287ed65278cd78b2d8ef41e",
+    "_found_date": "2026-06-07",
+    "fit": "good"
+  },
+  {
+    "title": "Transit Facilities Maintenance and Signposting Services",
+    "summary": "LADOT seeks proposals to manage, maintain, and landscape twelve facilities including five Metrolink stations, two park-and-ride lots, one passenger transit hub, and one vacant lot. Work includes sign management and maintenance. Five-year contract expected to extend through 2027 Super Bowl and 2028 Olympic Games.",
+    "deadline": "February 18 2026",
+    "issue_date": "February 18 2026",
+    "category": "om",
+    "rfp_number": "216028",
+    "url": "https://www.rampla.org/s/",
+    "agency": "LADOT",
+    "agency_id": "ladot",
+    "_id": "59604a4750edbca952bb55b7",
+    "_found_date": "2026-06-06",
+    "fit": "monitor"
+  },
+  {
+    "title": "Rapid Response Contractors for LIRR State of Good Repair Work",
+    "summary": "LIRR is seeking rapid response contractors to support state of good repair maintenance and repair work across the railroad system. This is an on-call/as-needed contract for ongoing operational maintenance activities.",
+    "deadline": "Not specified",
+    "issue_date": "Not specified",
+    "category": "om",
+    "rfp_number": "0000534324",
+    "url": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road",
+    "agency": "NY MTA \u2014 Long Island Rail Road",
+    "agency_id": "nymta_lirr",
+    "_id": "15faa0e4d8c01b155f37fc26",
+    "_found_date": "2026-06-06",
+    "fit": "monitor"
+  },
+  {
+    "title": "Continuous Welded Rail (CWR) Hauling Train",
+    "summary": "LIRR is soliciting a Request for Expression of Interest (RFEI) for continuous welded rail hauling train services to support railroad infrastructure maintenance and replacement activities.",
+    "deadline": "Not specified",
+    "issue_date": "May 22 2026",
+    "category": "om",
+    "rfp_number": "R.F.E.I 05.22.26",
+    "url": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road",
+    "agency": "NY MTA \u2014 Long Island Rail Road",
+    "agency_id": "nymta_lirr",
+    "_id": "ffa5a28f8e131e78094ad930",
+    "_found_date": "2026-06-06",
+    "fit": "monitor"
+  }
+]
