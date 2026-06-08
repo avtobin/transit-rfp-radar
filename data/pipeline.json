@@ -431,7 +431,7 @@
     "opportunity_type": "CM",
     "pursuit_tier": "Tier 1",
     "score": 89,
-    "status": "budget_signal",
+    "status": "active_rfp",
     "expected_rfp_date": null,
     "estimated_value": 15000000,
     "contact": "Jim Beil, Executive Director of Capital Programs",
@@ -453,7 +453,7 @@
     "winning_source": "board_action",
     "date_conflict": false,
     "added_date": "2026-05-30",
-    "last_checked": "2026-05-30"
+    "last_checked": "2026-06-08"
   },
   {
     "id": "octa-traffic-mgmt-data",
