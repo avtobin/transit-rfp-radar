@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Transit RFP Radar
-Searches 31 transit agency procurement portals daily,
-deduplicates against seen RFPs, and sends an email digest.
+Transit RFP Radar - HTML Scraper Version
+Scrapes procurement portals directly using Playwright (no web search).
+Must run from a laptop/desktop with a residential IP.
 """
 
 import os
@@ -17,56 +17,64 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 import anthropic
-import requests
 
-# ── Configuration ─────────────────────────────────────────────────────────────
+# ── File paths ────────────────────────────────────────────────────────────────
+
+SEEN_FILE = Path("data/seen_rfps.json")
+RFPS_FILE = Path("data/rfps.json")
+
+# ── Agency configuration ──────────────────────────────────────────────────────
+# scrape_type: playwright | static | mta
 
 AGENCIES = [
-    # ── Southern California ───────────────────────────────────────────────────
-    {"id": "octa",       "name": "OCTA",                               "portal": "https://procurement.opengov.com/portal/octa"},
-    {"id": "lbt",        "name": "Long Beach Transit",                 "portal": "https://vendors.planetbids.com/portal/28908/bo/bo-search"},
-    {"id": "rta",        "name": "Riverside Transit Agency",           "portal": "https://vendors.planetbids.com/portal/55483/bo/bo-search"},
-    {"id": "sdmts",      "name": "San Diego MTS",                      "portal": "https://vendors.planetbids.com/portal/14771/bo/bo-search"},
-    {"id": "omnitrans",  "name": "Omnitrans",                          "portal": "https://vendors.planetbids.com/portal/18046/bo/bo-search"},
-    {"id": "nctd",       "name": "North County Transit District",      "portal": "https://vendors.planetbids.com/portal/20134/bo/bo-search"},
-    {"id": "foothill",   "name": "Foothill Transit",                   "portal": "https://vendors.planetbids.com/portal/29905/bo/bo-search"},
-    {"id": "sunline",    "name": "SunLine Transit",                    "portal": "https://vendors.planetbids.com/portal/56419/bo/bo-search"},
-    {"id": "sbcta",      "name": "San Bernardino CTA",                 "portal": "https://www.gosbcta.com/doing-business/bids-rfps/"},
-    {"id": "metrolink",  "name": "Metrolink",                          "portal": "https://metrolinktrains.com/about/doing-business-with-metrolink/procurement-opportunities/"},
-    {"id": "ladot",      "name": "LADOT",                              "portal": "https://www.rampla.org/s/"},
-    {"id": "lametro",    "name": "LA Metro",                           "portal": "https://business.metro.net/webcenter/portal/VendorPortal"},
-    # ── Northern California ───────────────────────────────────────────────────
-    {"id": "bart",       "name": "BART",                               "portal": "https://suppliers.bart.gov/psp/BRFPV91/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL?active=P"},
-    {"id": "vta",        "name": "VTA (Santa Clara)",                  "portal": "https://procurement.opengov.com/portal/vta"},
-    {"id": "actransit",  "name": "AC Transit",                         "portal": "https://actransit.bonfirehub.com/portal/?tab=openOpportunities"},
-    # ── Pacific Northwest ─────────────────────────────────────────────────────
-    {"id": "kcmetro",    "name": "King County Metro",                  "portal": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151"},
-    {"id": "trimet",     "name": "TriMet",                             "portal": "https://bidlocker.us/a/trimet/BidLocker"},
-    {"id": "soundtransit","name": "Sound Transit",                     "portal": "https://www.biddingo.com/soundtransit"},
-    {"id": "commtransit","name": "Community Transit",                  "portal": "https://commtrans.procureware.com/Bids"},
-    # ── Mountain / Southwest ──────────────────────────────────────────────────
-    {"id": "rtd",        "name": "Denver RTD",                         "portal": "https://procurement.opengov.com/portal/rtd-denver"},
-    # ── Texas ─────────────────────────────────────────────────────────────────
-    {"id": "houston",    "name": "Houston Metro",                      "portal": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities"},
-    # ── Mid-Atlantic / Northeast ──────────────────────────────────────────────
-    {"id": "wmata",      "name": "WMATA",                              "portal": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL"},
-    {"id": "septa",      "name": "SEPTA",                              "portal": "https://www.septa.org/procurement/bids/"},
-    {"id": "prt",        "name": "Pittsburgh PRT",                     "portal": "https://www.rideprt.org/business-center/procurement/bids-and-rfps/"},
-    {"id": "nymta_cd",   "name": "NY MTA — Construction & Development","portal": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities"},
-    {"id": "nymta_gen",  "name": "NY MTA — General Procurement",       "portal": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities"},
-    {"id": "nymta_hq",   "name": "NY MTA — Headquarters",              "portal": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters"},
-    {"id": "nymta_nyct", "name": "NY MTA — NYC Transit",               "portal": "https://www.mta.info/doing-business-with-us/procurement/new-york-city-transit"},
-    {"id": "nymta_lirr", "name": "NY MTA — Long Island Rail Road",     "portal": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road"},
-    {"id": "mbta",       "name": "Boston MBTA",                        "portal": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/"},
-    {"id": "njtransit",  "name": "NJ Transit",                         "portal": "https://www.njtransit.com/procurement/calendar"},
+    {"id": "octa",        "name": "OCTA",                                "url": "https://procurement.opengov.com/portal/octa?status=open",                                                                   "scrape_type": "playwright"},
+    {"id": "lbt",         "name": "Long Beach Transit",                  "url": "https://vendors.planetbids.com/portal/28908/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "rta",         "name": "Riverside Transit Agency",            "url": "https://vendors.planetbids.com/portal/55483/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "sdmts",       "name": "San Diego MTS",                       "url": "https://vendors.planetbids.com/portal/14771/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "omnitrans",   "name": "Omnitrans",                           "url": "https://vendors.planetbids.com/portal/18046/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "nctd",        "name": "North County Transit District",       "url": "https://vendors.planetbids.com/portal/20134/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "foothill",    "name": "Foothill Transit",                    "url": "https://vendors.planetbids.com/portal/29905/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "sunline",     "name": "SunLine Transit",                     "url": "https://vendors.planetbids.com/portal/56419/bo/bo-search?stage_id=2",                                                                   "scrape_type": "playwright"},
+    {"id": "sbcta",       "name": "San Bernardino CTA",                  "url": "https://www.gosbcta.com/doing-business/bids-rfps/",                                                                          "scrape_type": "static"},
+    {"id": "metrolink",   "name": "Metrolink",                           "url": "https://metrolinktrains.com/about/doing-business-with-metrolink/procurement-opportunities/",                                 "scrape_type": "static"},
+    {"id": "ladot",       "name": "LADOT",                               "url": "https://www.rampla.org/s/",                                                                                                  "scrape_type": "playwright"},
+    {"id": "lametro",     "name": "LA Metro",                            "url": "https://business.metro.net/webcenter/portal/VendorPortal",                                                                   "scrape_type": "playwright"},
+    {"id": "bart",        "name": "BART",                                "url": "https://suppliers.bart.gov/psp/BRFPV91/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL?active=P",                       "scrape_type": "playwright"},
+    {"id": "vta",         "name": "VTA (Santa Clara)",                   "url": "https://procurement.opengov.com/portal/vta?status=open",                                                                     "scrape_type": "playwright"},
+    {"id": "actransit",   "name": "AC Transit",                          "url": "https://actransit.bonfirehub.com/portal/?tab=openOpportunities",                                                             "scrape_type": "playwright"},
+    {"id": "kcmetro",     "name": "King County Metro",                   "url": "https://fa-epvh-saasfaprod1.fa.ocs.oraclecloud.com/fscmUI/faces/NegotiationAbstracts?prcBuId=300000001727151",               "scrape_type": "playwright"},
+    {"id": "trimet",      "name": "TriMet",                              "url": "https://bidlocker.us/a/trimet/BidLocker",                                                                                    "scrape_type": "playwright"},
+    {"id": "soundtransit","name": "Sound Transit",                       "url": "https://www.biddingo.com/soundtransit",                                                                                      "scrape_type": "playwright"},
+    {"id": "commtransit", "name": "Community Transit",                   "url": "https://commtrans.procureware.com/Bids",                                                                                     "scrape_type": "playwright"},
+    {"id": "rtd",         "name": "Denver RTD",                          "url": "https://procurement.opengov.com/portal/rtd-denver?status=open",                                                              "scrape_type": "playwright"},
+    {"id": "houston",     "name": "Houston Metro",                       "url": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities",                                             "scrape_type": "static"},
+    {"id": "wmata",       "name": "WMATA",                               "url": "https://supplier.wmata.com/psp/supplier_1/SUPPLIER/ERP/c/AUC_MANAGE_BIDS.AUC_RESP_INQ_AUC.GBL",                            "scrape_type": "playwright"},
+    {"id": "septa",       "name": "SEPTA",                               "url": "https://www.septa.org/procurement/bids/",                                                                                   "scrape_type": "static"},
+    {"id": "prt",         "name": "Pittsburgh PRT",                      "url": "https://www.rideprt.org/business-center/procurement/bids-and-rfps/",                                                        "scrape_type": "static"},
+    {"id": "nymta_cd",    "name": "NY MTA Construction & Development",   "url": "https://www.mta.info/agency/construction-and-development/contracting/current-opportunities",                                 "scrape_type": "mta"},
+    {"id": "nymta_gen",   "name": "NY MTA General Procurement",          "url": "https://www.mta.info/doing-business-with-us/procurement/current-opportunities",                                              "scrape_type": "mta"},
+    {"id": "nymta_lirr",  "name": "NY MTA Long Island Rail Road",        "url": "https://www.mta.info/doing-business-with-us/procurement/long-island-rail-road",                                             "scrape_type": "mta"},
+    {"id": "nymta_nyct",  "name": "NY MTA NYC Transit",                  "url": "https://www.mta.info/doing-business-with-us/procurement/new-york-city-transit",                                             "scrape_type": "mta"},
+    {"id": "nymta_hq",    "name": "NY MTA Headquarters",                 "url": "https://www.mta.info/doing-business-with-us/procurement/mta-headquarters",                                                  "scrape_type": "mta"},
+    {"id": "mbta",        "name": "Boston MBTA",                         "url": "https://bc.mbta.com/business_center/bidding_solicitations/current_solicitations/",                                          "scrape_type": "static"},
+    {"id": "njtransit",   "name": "NJ Transit",                          "url": "https://www.njtransit.com/procurement/calendar",                                                                            "scrape_type": "static"},
 ]
 
 MTA_FAMILY = {"nymta_cd", "nymta_gen", "nymta_hq", "nymta_nyct", "nymta_lirr"}
 
-# ── PlanetBids agencies — skip web search fallback, too unreliable ────────────
-PLANETBIDS_IDS = {"lbt", "rta", "sdmts", "omnitrans", "nctd", "foothill", "sunline"}
-
-# ── Fit scoring ───────────────────────────────────────────────────────────────
+RELEVANT_KEYWORDS = [
+    "program management", "project management", "construction management",
+    "advisory", "consulting", "zero emission", "zeb", "battery electric",
+    "electrification", "ev charging", "evse", "charging infrastructure",
+    "electric bus", "microgrid", "renewable energy", "energy storage",
+    "owner's representative", "owner representative", "project controls",
+    "p3", "public-private", "alternative delivery",
+    "operations and maintenance", "o&m", "grant management", "federal funding",
+    "fta grant", "asset management", "cmms", "eam", "data analytics",
+    "performance reporting", "procurement advisory",
+    "capital program", "capital project", "infrastructure", "planning",
+    "environmental", "community outreach", "stakeholder",
+]
 
 PRIORITY_AGENCIES = {
     "octa", "lbt", "sdmts", "ladot", "lametro",
@@ -76,66 +84,19 @@ PRIORITY_AGENCIES = {
 
 ZEV_KEYWORDS = [
     "zero emission", "zeb", "battery electric", "ev charging", "evse",
-    "electrification", "charging infrastructure", "electric bus", "electric vehicle",
-]
-
-CONSTRUCTION_KEYWORDS = [
-    "design-build", "design build", "general contractor", "ifb",
-    "invitation for bid", "cmar", "construction contract", "prime contractor",
+    "electrification", "charging infrastructure", "electric bus",
 ]
 
 STRONG_FIT_CATEGORIES = {"pm", "cm", "p3", "grant"}
 GOOD_FIT_CATEGORIES   = {"adv", "asset", "data"}
 
-
-def score_fit(rfp: dict) -> str:
-    title   = (rfp.get("title",   "") or "").lower()
-    summary = (rfp.get("summary", "") or "").lower()
-    text    = title + " " + summary
-    cat     = rfp.get("category", "adv")
-    agency  = rfp.get("agency_id", "")
-
-    if any(kw in text for kw in ZEV_KEYWORDS):
-        return "strong"
-    if cat in STRONG_FIT_CATEGORIES and agency in PRIORITY_AGENCIES:
-        return "strong"
-    if cat in STRONG_FIT_CATEGORIES:
-        return "good"
-    if cat in GOOD_FIT_CATEGORIES and agency in PRIORITY_AGENCIES:
-        return "good"
-    if any(kw in text for kw in CONSTRUCTION_KEYWORDS):
-        return "monitor"
-    return "monitor"
-
-
-FIT_LABELS = {"strong": "Strong Fit", "good": "Good Fit", "monitor": "Monitor"}
-FIT_COLORS = {
-    "strong": {"bg": "#EAF3DE", "text": "#27500A"},
-    "good":   {"bg": "#FAEEDA", "text": "#633806"},
-    "monitor":{"bg": "#F1EFE8", "text": "#5F5E5A"},
-}
-
-KEYWORDS = (
-    "program management OR project management OR construction management OR "
-    "advisory OR consulting OR zero emission OR ZEB OR battery electric OR "
-    "electrification OR EV charging OR EVSE OR owner's representative OR "
-    "project controls OR P3 OR public-private partnership OR "
-    "grant management OR federal funding OR FTA grant OR "
-    "asset management OR CMMS OR EAM OR data analytics OR procurement advisory"
-)
-
 CATEGORY_LABELS = {
-    "pm":    "Program / Project Mgmt",
-    "cm":    "Construction Mgmt",
-    "adv":   "Advisory & Consulting",
-    "zev":   "Zero Emissions / EV",
-    "micro": "Microgrid / Energy",
-    "p3":    "P3 / Alternative Delivery",
-    "om":    "Operations & Maintenance",
-    "grant": "Grant Management",
-    "asset": "Asset Management",
-    "data":  "Data Analytics & Reporting",
-    "proc":  "Procurement Advisory",
+    "pm": "Program / Project Mgmt", "cm": "Construction Mgmt",
+    "adv": "Advisory & Consulting", "zev": "Zero Emissions / EV",
+    "micro": "Microgrid / Energy", "p3": "P3 / Alternative Delivery",
+    "om": "Operations & Maintenance", "grant": "Grant Management",
+    "asset": "Asset Management", "data": "Data Analytics & Reporting",
+    "proc": "Procurement Advisory",
 }
 
 CATEGORY_COLORS = {
@@ -152,345 +113,404 @@ CATEGORY_COLORS = {
     "proc":  {"bg": "#FFF7ED", "text": "#7C2D12"},
 }
 
-SEEN_FILE = Path("data/seen_rfps.json")
-RFPS_FILE = Path("data/rfps.json")
+FIT_LABELS = {"strong": "Strong Fit", "good": "Good Fit", "monitor": "Monitor"}
+FIT_COLORS = {
+    "strong": {"bg": "#EAF3DE", "text": "#27500A"},
+    "good":   {"bg": "#FAEEDA", "text": "#633806"},
+    "monitor":{"bg": "#F1EFE8", "text": "#5F5E5A"},
+}
 
-SYSTEM_PROMPT = """You are an RFP procurement researcher for an AEC consulting practice
-pursuing professional services contracts with transit agencies.
+CATEGORIZE_PROMPT = """You are an AEC procurement analyst. Categorize these procurement opportunities.
 
-Search for active or recently issued RFPs from the given transit agency.
-
-Return ONLY valid JSON — no markdown, no backticks, no explanation. Format:
+Return ONLY valid JSON, no markdown, no backticks:
 {
   "rfps": [
     {
-      "title": "Full RFP title",
-      "summary": "2-3 sentence description of the scope of work",
-      "deadline": "Month DD YYYY, or Not specified",
-      "issue_date": "Month DD YYYY, or Not specified",
+      "title": "exact title",
+      "summary": "2-3 sentence scope description",
+      "deadline": "Month DD YYYY or Not specified",
+      "rfp_number": "number or Not specified",
       "category": "pm|cm|adv|zev|micro|p3|om|grant|asset|data|proc",
-      "rfp_number": "RFP/IFB/RFQ number, or Not specified",
-      "url": "direct URL to RFP posting or procurement portal"
+      "url": "url from input"
     }
   ]
 }
 
-Category codes:
-  pm=program/project management, cm=construction management,
-  adv=advisory/consulting, zev=zero emission/EV/electrification,
-  micro=microgrid/energy, p3=P3/alternative delivery,
-  om=operations & maintenance, grant=grant management,
-  asset=asset management, data=data analytics, proc=procurement advisory
+Categories: pm=program/project mgmt, cm=construction mgmt/owner's rep,
+adv=advisory/consulting/planning, zev=zero emission/EV/electrification,
+micro=microgrid/energy, p3=P3/alternative delivery,
+om=operations & maintenance, grant=grant management,
+asset=asset management, data=data analytics, proc=procurement advisory
 
-Return {"rfps": []} if nothing relevant found. Maximum 3 results."""
-
-
-# ── Helpers ────────────────────────────────────────────────────────────────────
-
-def _normalize_title(title: str) -> str:
-    clean = re.sub(r"[^\w\s]", "", title.lower())
-    return re.sub(r"\s+", " ", clean).strip()
+Only include AEC professional services opportunities. Return {"rfps": []} if nothing relevant."""
 
 
-def make_rfp_id(agency_id: str, agency_name: str, title: str) -> str:
-    namespace = "NY MTA" if agency_id in MTA_FAMILY else agency_name
-    raw = namespace + _normalize_title(title)
-    return hashlib.sha256(raw.encode()).hexdigest()[:24]
+def score_fit(rfp: dict) -> str:
+    text   = ((rfp.get("title") or "") + " " + (rfp.get("summary") or "")).lower()
+    cat    = rfp.get("category", "adv")
+    agency = rfp.get("agency_id", "")
+    if any(kw in text for kw in ZEV_KEYWORDS): return "strong"
+    if cat in STRONG_FIT_CATEGORIES and agency in PRIORITY_AGENCIES: return "strong"
+    if cat in STRONG_FIT_CATEGORIES: return "good"
+    if cat in GOOD_FIT_CATEGORIES and agency in PRIORITY_AGENCIES: return "good"
+    return "monitor"
 
+def _normalize(t): return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", "", t.lower())).strip()
+def make_rfp_id(aid, aname, title):
+    ns = "NY MTA" if aid in MTA_FAMILY else aname
+    return hashlib.sha256((ns + _normalize(title)).encode()).hexdigest()[:24]
 
-def load_all_rfps() -> list:
-    if RFPS_FILE.exists():
-        return json.loads(RFPS_FILE.read_text())
-    return []
-
-
-def save_all_rfps(rfps: list) -> None:
-    RFPS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    RFPS_FILE.write_text(json.dumps(rfps, indent=2))
-
-
-def load_seen() -> set:
-    if SEEN_FILE.exists():
-        return set(json.loads(SEEN_FILE.read_text()))
-    return set()
-
-
-def save_seen(seen: set) -> None:
+def load_seen():
+    return set(json.loads(SEEN_FILE.read_text())) if SEEN_FILE.exists() else set()
+def save_seen(s):
     SEEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-    SEEN_FILE.write_text(json.dumps(sorted(seen), indent=2))
+    SEEN_FILE.write_text(json.dumps(sorted(s), indent=2))
+def load_all_rfps():
+    return json.loads(RFPS_FILE.read_text()) if RFPS_FILE.exists() else []
+def save_all_rfps(r):
+    RFPS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    RFPS_FILE.write_text(json.dumps(r, indent=2))
+
+def is_relevant(text):
+    t = text.lower()
+    return any(kw in t for kw in RELEVANT_KEYWORDS)
 
 
-# ── Git push ───────────────────────────────────────────────────────────────────
+CLOSED_INDICATORS = [
+    "closed", "awarded", "cancelled", "canceled", "expired",
+    "no longer accepting", "contract awarded", "bid opening passed",
+    "solicitation closed", "procurement closed",
+]
 
-def git_push_seen() -> None:
+def is_closed(text: str) -> bool:
+    """Return True if the item appears to be closed/past."""
+    t = text.lower()
+    # Check for closed keywords
+    if any(indicator in t for indicator in CLOSED_INDICATORS):
+        return True
+    # Check for past deadline dates
+    return is_past_deadline(text)
+
+def is_past_deadline(text: str) -> bool:
+    """Return True if text contains a deadline date that has already passed."""
+    import re
+    from datetime import date
+    today = date.today()
+    months = {
+        "jan":1,"feb":2,"mar":3,"apr":4,"may":5,"jun":6,
+        "jul":7,"aug":8,"sep":9,"oct":10,"nov":11,"dec":12
+    }
+    # Pattern: "Month DD, YYYY" or "Month DD YYYY"
+    pattern = r'(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})'
+    for m, d, y in re.findall(pattern, text.lower()):
+        try:
+            if date(int(y), months[m[:3]], int(d)) < today:
+                return True
+        except:
+            pass
+    # Pattern: "MM/DD/YYYY"
+    for mo, dy, yr in re.findall(r'(\d{1,2})/(\d{1,2})/(\d{4})', text):
+        try:
+            if date(int(yr), int(mo), int(dy)) < today:
+                return True
+        except:
+            pass
+    return False
+
+
+def scrape_with_playwright(agency):
     try:
-        subprocess.run(["git", "config", "user.name",  "rfp-radar[bot]"], check=True)
-        subprocess.run(["git", "config", "user.email", "rfp-radar[bot]@users.noreply.github.com"], check=True)
-        subprocess.run(["git", "add", str(SEEN_FILE), str(RFPS_FILE)], check=True)
-        result = subprocess.run(["git", "diff", "--cached", "--quiet"])
-        if result.returncode == 0:
-            print("No changes — skipping push.")
-            return
-        subprocess.run(["git", "commit", "-m", "Update seen_rfps.json [skip ci]"], check=True)
-        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
-        subprocess.run(["git", "push", "origin", "main"], check=True)
-        print("Pushed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Git push warning (non-fatal): {e}")
+        from playwright.sync_api import sync_playwright
+        from bs4 import BeautifulSoup
+        from urllib.parse import urlparse
+    except ImportError:
+        print(f"  [{agency['name']}] Install: pip install playwright beautifulsoup4 && playwright install chromium")
+        return []
+
+    raw_items = []
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            ctx = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+            page = ctx.new_page()
+            page.goto(agency["url"], wait_until="domcontentloaded", timeout=60000)
+            time.sleep(3)
+            content = page.content()
+            browser.close()
+
+        soup = BeautifulSoup(content, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header"]):
+            tag.decompose()
+
+        seen_keys = set()
+        base = urlparse(agency["url"])
+
+        for elem in soup.find_all(["tr", "li", "div", "article"]):
+            text = elem.get_text(" ", strip=True)
+            if 30 < len(text) < 800 and is_relevant(text) and not is_closed(text):
+                key = text[:50]
+                if key not in seen_keys:
+                    seen_keys.add(key)
+                    link = elem.find("a")
+                    url = agency["url"]
+                    if link and link.get("href"):
+                        href = link["href"]
+                        url = f"{base.scheme}://{base.netloc}{href}" if href.startswith("/") else href
+                    raw_items.append({"text": text[:500], "url": url})
+
+        print(f"  [{agency['name']}] Playwright: {len(raw_items)} items")
+    except Exception as e:
+        print(f"  [{agency['name']}] Playwright error: {e}")
+
+    return raw_items[:10]
 
 
-# ── Claude web search ──────────────────────────────────────────────────────────
+def scrape_static(agency):
+    import requests
+    from bs4 import BeautifulSoup
+    from urllib.parse import urlparse
 
-def search_agency(client: anthropic.Anthropic, agency: dict) -> list[dict]:
-    """Search one agency using Claude with web search. Uses Haiku for cost efficiency."""
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+    raw_items = []
+
+    try:
+        r = requests.get(agency["url"], headers=headers, timeout=15)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer"]): tag.decompose()
+
+        seen_keys = set()
+        base = urlparse(agency["url"])
+
+        for elem in soup.find_all(["tr", "li", "div", "p", "article"]):
+            text = elem.get_text(" ", strip=True)
+            if 30 < len(text) < 800 and is_relevant(text) and not is_closed(text):
+                key = text[:50]
+                if key not in seen_keys:
+                    seen_keys.add(key)
+                    link = elem.find("a")
+                    url = agency["url"]
+                    if link and link.get("href"):
+                        href = link["href"]
+                        url = f"{base.scheme}://{base.netloc}{href}" if href.startswith("/") else href
+                    raw_items.append({"text": text[:500], "url": url})
+
+        print(f"  [{agency['name']}] Static: {len(raw_items)} items")
+    except Exception as e:
+        print(f"  [{agency['name']}] Static error: {e}")
+
+    return raw_items[:10]
+
+
+def scrape_mta(agency):
+    import requests
+    from bs4 import BeautifulSoup
+
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
+    raw_items = []
+
+    try:
+        r = requests.get(agency["url"], headers=headers, timeout=15)
+        r.raise_for_status()
+        soup = BeautifulSoup(r.text, "html.parser")
+
+        seen_keys = set()
+
+        for row in soup.find_all("tr"):
+            cells = row.find_all(["td", "th"])
+            if len(cells) >= 2:
+                text = " | ".join(c.get_text(strip=True) for c in cells)
+                if is_relevant(text) and not is_closed(text) and len(text) > 20:
+                    key = text[:50]
+                    if key not in seen_keys:
+                        seen_keys.add(key)
+                        link = row.find("a")
+                        url = agency["url"]
+                        if link and link.get("href"):
+                            href = link["href"]
+                            url = f"https://www.mta.info{href}" if href.startswith("/") else href
+                        raw_items.append({"text": text[:500], "url": url})
+
+        for item in soup.find_all(["li", "div"]):
+            text = item.get_text(" ", strip=True)
+            if 30 < len(text) < 600 and is_relevant(text) and not is_closed(text):
+                key = text[:50]
+                if key not in seen_keys:
+                    seen_keys.add(key)
+                    link = item.find("a")
+                    url = agency["url"]
+                    if link and link.get("href"):
+                        href = link["href"]
+                        url = f"https://www.mta.info{href}" if href.startswith("/") else href
+                    raw_items.append({"text": text[:500], "url": url})
+
+        print(f"  [{agency['name']}] MTA: {len(raw_items)} items")
+    except Exception as e:
+        print(f"  [{agency['name']}] MTA error: {e}")
+
+    return raw_items[:10]
+
+
+def categorize_with_claude(client, agency, raw_items):
+    if not raw_items: return []
+
+    items_text = "\n\n".join(f"Item {i+1}:\nText: {item['text']}\nURL: {item['url']}" for i, item in enumerate(raw_items))
+
     try:
         response = client.messages.create(
             model="claude-haiku-4-5",
             max_tokens=1500,
-            tools=[{"type": "web_search_20250305", "name": "web_search"}],
-            system=SYSTEM_PROMPT,
-            messages=[{
-                "role": "user",
-                "content": (
-                    f"Search for active RFPs from {agency['name']} "
-                    f"at {agency['portal']} "
-                    f"matching: {KEYWORDS}. "
-                    f"Return JSON only."
-                )
-            }]
+            system=CATEGORIZE_PROMPT,
+            messages=[{"role": "user", "content": f"Agency: {agency['name']}\n\n{items_text}"}]
         )
-
-        text = "".join(block.text for block in response.content if hasattr(block, "text"))
-
-        if not text.strip():
-            print(f"  [{agency['name']}] No response")
-            return []
-
+        text = "".join(b.text for b in response.content if hasattr(b, "text"))
         clean = text.strip()
         if clean.startswith("```"):
             clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
+            if clean.startswith("json"): clean = clean[4:]
 
-        parsed = json.loads(clean.strip())
-        rfps = parsed.get("rfps", [])
-
+        rfps = json.loads(clean.strip()).get("rfps", [])
         for rfp in rfps:
             rfp["agency"]      = agency["name"]
             rfp["agency_id"]   = agency["id"]
             rfp["_id"]         = make_rfp_id(agency["id"], agency["name"], rfp.get("title", ""))
             rfp["_found_date"] = datetime.now().strftime("%Y-%m-%d")
             rfp["fit"]         = score_fit(rfp)
-
-        print(f"  [{agency['name']}] {len(rfps)} RFP(s) found")
+        print(f"  [{agency['name']}] Claude: {len(rfps)} RFP(s)")
         return rfps
-
-    except json.JSONDecodeError:
-        print(f"  [{agency['name']}] JSON parse error")
-        return []
     except Exception as e:
-        print(f"  [{agency['name']}] Error: {e}")
+        print(f"  [{agency['name']}] Claude error: {e}")
         return []
 
 
-# ── Email builder ──────────────────────────────────────────────────────────────
+def git_push():
+    try:
+        subprocess.run(["git", "config", "user.name",  "rfp-radar[bot]"], check=True)
+        subprocess.run(["git", "config", "user.email", "rfp-radar[bot]@users.noreply.github.com"], check=True)
+        subprocess.run(["git", "add", str(SEEN_FILE), str(RFPS_FILE)], check=True)
+        if subprocess.run(["git", "diff", "--cached", "--quiet"]).returncode == 0:
+            print("No changes to push."); return
+        subprocess.run(["git", "commit", "-m", "Update rfps.json [skip ci]"], check=True)
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
+        subprocess.run(["git", "push", "origin", "main"], check=True)
+        print("Pushed to GitHub.")
+    except subprocess.CalledProcessError as e:
+        print(f"Git warning: {e}")
 
-def build_rfp_row(rfp: dict) -> str:
-    cat            = rfp.get("category", "adv")
-    colors         = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
-    cat_label      = CATEGORY_LABELS.get(cat, cat)
-    deadline       = rfp.get("deadline", "Not specified")
-    rfp_num        = rfp.get("rfp_number", "Not specified")
-    url            = rfp.get("url", "#")
-    deadline_color = "#993C1D" if deadline != "Not specified" else "#888"
-    fit            = rfp.get("fit", "monitor")
-    fit_colors     = FIT_COLORS.get(fit, FIT_COLORS["monitor"])
-    fit_label      = FIT_LABELS.get(fit, "Monitor")
 
-    return f"""
-    <tr>
+def build_rfp_row(rfp):
+    cat        = rfp.get("category", "adv")
+    colors     = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["adv"])
+    cat_label  = CATEGORY_LABELS.get(cat, cat)
+    deadline   = rfp.get("deadline", "Not specified")
+    rfp_num    = rfp.get("rfp_number", "Not specified")
+    url        = rfp.get("url", "#")
+    fit        = rfp.get("fit", "monitor")
+    fc         = FIT_COLORS.get(fit, FIT_COLORS["monitor"])
+    fl         = FIT_LABELS.get(fit, "Monitor")
+    dlc        = "#993C1D" if deadline != "Not specified" else "#888"
+    return f"""<tr>
       <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;width:160px;">
-        <span style="display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;
-                     font-weight:700;background:{fit_colors['bg']};color:{fit_colors['text']};">
-          {fit_label}
-        </span>
-        <div style="margin-top:5px;">
-          <span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;
-                       font-weight:600;background:{colors['bg']};color:{colors['text']};">
-            {cat_label}
-          </span>
-        </div>
-        <div style="margin-top:6px;font-size:12px;color:#555;font-weight:500;">
-          {rfp.get('agency', '')}
-        </div>
+        <span style="display:inline-block;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:700;background:{fc['bg']};color:{fc['text']};">{fl}</span>
+        <div style="margin-top:5px;"><span style="display:inline-block;padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;background:{colors['bg']};color:{colors['text']};">{cat_label}</span></div>
+        <div style="margin-top:6px;font-size:12px;color:#555;font-weight:500;">{rfp.get('agency','')}</div>
       </td>
       <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;">
-        <div style="font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.4;">
-          {rfp.get('title', 'Untitled RFP')}
-        </div>
-        <div style="margin-top:6px;font-size:13px;color:#555;line-height:1.6;">
-          {rfp.get('summary', '')}
-        </div>
+        <div style="font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.4;">{rfp.get('title','Untitled')}</div>
+        <div style="margin-top:6px;font-size:13px;color:#555;line-height:1.6;">{rfp.get('summary','')}</div>
       </td>
-      <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;
-                 white-space:nowrap;font-size:12px;color:#555;min-width:120px;">
+      <td style="padding:14px 16px;border-bottom:1px solid #f0f0f0;vertical-align:top;white-space:nowrap;font-size:12px;min-width:120px;">
         {f'<div style="color:#888;">#{rfp_num}</div>' if rfp_num != "Not specified" else ""}
-        <div style="margin-top:4px;color:{deadline_color};font-weight:{'500' if deadline != 'Not specified' else '400'};">
-          {"Due: " + deadline if deadline != "Not specified" else "No deadline listed"}
-        </div>
-        <div style="margin-top:8px;">
-          <a href="{url}" style="color:#185FA5;font-size:12px;text-decoration:none;">
-            View RFP →
-          </a>
-        </div>
+        <div style="margin-top:4px;color:{dlc};font-weight:{'500' if deadline != 'Not specified' else '400'};">{"Due: " + deadline if deadline != "Not specified" else "No deadline"}</div>
+        <div style="margin-top:8px;"><a href="{url}" style="color:#185FA5;font-size:12px;">View RFP →</a></div>
       </td>
     </tr>"""
 
 
-def build_email_html(new_rfps: list[dict], run_date: str, agencies_searched: int) -> str:
+def build_email(new_rfps, run_date):
     count = len(new_rfps)
-    fit_order = {"strong": 0, "good": 1, "monitor": 2}
-    sorted_rfps = sorted(new_rfps, key=lambda r: fit_order.get(r.get("fit", "monitor"), 2))
-    rows_html = "".join(build_rfp_row(r) for r in sorted_rfps) if new_rfps else ""
+    sorted_rfps = sorted(new_rfps, key=lambda r: {"strong":0,"good":1,"monitor":2}.get(r.get("fit","monitor"),2))
+    body = f"""<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#fafafa;">
+      <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #e8e8e4;">Fit / Category</td>
+      <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #e8e8e4;">RFP</td>
+      <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;border-bottom:1px solid #e8e8e4;">Details</td>
+    </tr></thead><tbody>{"".join(build_rfp_row(r) for r in sorted_rfps)}</tbody></table>""" if new_rfps else """<div style="padding:48px 28px;text-align:center;color:#888;"><div style="font-size:32px;margin-bottom:12px;">✓</div><div style="font-size:15px;font-weight:500;color:#555;">All caught up — no new RFPs today.</div></div>"""
 
-    if new_rfps:
-        body_content = f"""
-        <table style="width:100%;border-collapse:collapse;">
-          <thead>
-            <tr style="background:#fafafa;">
-              <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;
-                         text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e8e8e4;">
-                Fit / Category / Agency
-              </td>
-              <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;
-                         text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e8e8e4;">
-                RFP
-              </td>
-              <td style="padding:10px 16px;font-size:11px;font-weight:600;color:#888;
-                         text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e8e8e4;">
-                Details
-              </td>
-            </tr>
-          </thead>
-          <tbody>{rows_html}</tbody>
-        </table>"""
-    else:
-        body_content = """
-        <div style="padding:48px 28px;text-align:center;color:#888;">
-          <div style="font-size:32px;margin-bottom:12px;">✓</div>
-          <div style="font-size:15px;font-weight:500;color:#555;">All caught up</div>
-          <div style="font-size:13px;margin-top:6px;">No new RFPs found today.</div>
-        </div>"""
-
-    agency_list = " · ".join(a["name"].replace("NY MTA — ", "MTA ") for a in AGENCIES)
-
-    return f"""<!DOCTYPE html>
-<html>
-<body style="margin:0;padding:0;background:#f4f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <div style="max-width:720px;margin:32px auto;background:#fff;border-radius:10px;
-              overflow:hidden;border:1px solid #e0e0d8;">
-    <div style="background:#1a1a1a;padding:24px 28px;">
-      <h1 style="color:#fff;margin:0;font-size:18px;font-weight:500;">🚌 Transit RFP Radar</h1>
-      <p style="color:#aaa;margin:6px 0 0;font-size:13px;">{run_date}</p>
-    </div>
+    return f"""<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:720px;margin:32px auto;background:#fff;border-radius:10px;overflow:hidden;border:1px solid #e0e0d8;">
+    <div style="background:#1a1a1a;padding:24px 28px;"><h1 style="color:#fff;margin:0;font-size:18px;font-weight:500;">🚌 Transit RFP Radar</h1><p style="color:#aaa;margin:6px 0 0;font-size:13px;">{run_date}</p></div>
     <div style="padding:18px 28px;background:#f8f8f4;border-bottom:1px solid #e8e8e4;display:flex;gap:32px;">
-      <div>
-        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">New RFPs</div>
-        <div style="font-size:28px;font-weight:600;color:{'#185FA5' if count > 0 else '#1a1a1a'};">{count}</div>
-      </div>
-      <div>
-        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Agencies searched</div>
-        <div style="font-size:28px;font-weight:600;color:#1a1a1a;">{agencies_searched}</div>
-      </div>
+      <div><div style="font-size:11px;color:#888;text-transform:uppercase;">New RFPs</div><div style="font-size:28px;font-weight:600;color:{'#185FA5' if count else '#1a1a1a'};">{count}</div></div>
+      <div><div style="font-size:11px;color:#888;text-transform:uppercase;">Agencies</div><div style="font-size:28px;font-weight:600;color:#1a1a1a;">{len(AGENCIES)}</div></div>
     </div>
-    {body_content}
-    <div style="padding:16px 28px;border-top:1px solid #e8e8e4;font-size:11px;color:#aaa;line-height:1.6;">
-      Monitoring: {agency_list}
-    </div>
-  </div>
-</body>
-</html>"""
+    {body}
+  </div></body></html>"""
 
 
-# ── Email sender ───────────────────────────────────────────────────────────────
-
-def send_email(html: str, new_count: int, run_date: str) -> None:
-    smtp_host     = os.environ.get("SMTP_HOST", "smtp.gmail.com").strip()
-    smtp_port     = int(os.environ.get("SMTP_PORT", "587").strip())
-    smtp_user     = os.environ["SMTP_USER"].strip()
-    smtp_password = os.environ["SMTP_PASSWORD"].strip()
-    to_addresses  = [a.strip() for a in os.environ["DIGEST_TO_EMAIL"].split(",")]
-
-    subject = f"Transit RFP Digest — {run_date} ({new_count} new)"
+def send_email(html, count, run_date):
+    smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com").strip()
+    smtp_port = int(os.environ.get("SMTP_PORT", "587").strip())
+    smtp_user = os.environ["SMTP_USER"].strip()
+    smtp_pass = os.environ["SMTP_PASSWORD"].strip()
+    to_addrs  = [a.strip() for a in os.environ["DIGEST_TO_EMAIL"].split(",")]
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"]    = smtp_user
-    msg["To"]      = ", ".join(to_addresses)
+    msg["Subject"] = f"Transit RFP Digest — {run_date} ({count} new)"
+    msg["From"] = smtp_user
+    msg["To"] = ", ".join(to_addrs)
     msg.attach(MIMEText(html, "html"))
+    with smtplib.SMTP(smtp_host, smtp_port) as s:
+        s.ehlo(); s.starttls(); s.login(smtp_user, smtp_pass)
+        s.sendmail(smtp_user, to_addrs, msg.as_string())
+    print(f"Email sent to {', '.join(to_addrs)}")
 
-    with smtplib.SMTP(smtp_host, smtp_port) as server:
-        server.ehlo()
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, to_addresses, msg.as_string())
-
-    print(f"Email sent to {', '.join(to_addresses)}")
-
-
-# ── Main ───────────────────────────────────────────────────────────────────────
 
 def main():
     api_key = os.environ.get("ANTHROPIC_API_KEY")
-    if not api_key:
-        raise ValueError("ANTHROPIC_API_KEY not set")
+    if not api_key: raise ValueError("ANTHROPIC_API_KEY not set")
 
     client   = anthropic.Anthropic(api_key=api_key)
     seen     = load_seen()
     run_date = datetime.now().strftime("%A, %B %d, %Y").replace(" 0", " ")
 
-    print(f"\n=== Transit RFP Radar — {run_date} ===\n")
-    print(f"Seen RFPs in store: {len(seen)}\n")
+    print(f"\n=== Transit RFP Radar — {run_date} ===")
+    print(f"Seen RFPs: {len(seen)}\n")
 
     new_rfps = []
 
     for i, agency in enumerate(AGENCIES):
-        print(f"[{i+1}/{len(AGENCIES)}] Searching {agency['name']}...")
+        print(f"[{i+1}/{len(AGENCIES)}] {agency['name']}...")
+        scrape_type = agency.get("scrape_type", "static")
+        if scrape_type == "playwright":
+            raw_items = scrape_with_playwright(agency)
+        elif scrape_type == "mta":
+            raw_items = scrape_mta(agency)
+        else:
+            raw_items = scrape_static(agency)
 
-        # Skip PlanetBids agencies — direct API is blocked, web search unreliable
-        if agency["id"] in PLANETBIDS_IDS:
-            print(f"  [{agency['name']}] Skipping — PlanetBids portal (blocked)")
-            continue
+        if not raw_items: continue
 
-        rfps = search_agency(client, agency)
-
+        rfps = categorize_with_claude(client, agency, raw_items)
         for rfp in rfps:
             if rfp["_id"] not in seen:
                 new_rfps.append(rfp)
                 seen.add(rfp["_id"])
-                print(f"    ✓ NEW: {rfp.get('title', 'Untitled')}")
+                print(f"    NEW: {rfp.get('title','Untitled')}")
             else:
-                print(f"    – Already seen: {rfp.get('title', 'Untitled')}")
+                print(f"    Seen: {rfp.get('title','Untitled')}")
+        time.sleep(2)
 
-        if i < len(AGENCIES) - 1:
-            time.sleep(3)
-
-    print(f"\n{len(new_rfps)} new RFP(s) found across {len(AGENCIES)} agencies")
+    print(f"\n{len(new_rfps)} new RFP(s) found")
 
     save_seen(seen)
-
     all_rfps = load_all_rfps()
-    existing_ids = {r["_id"] for r in all_rfps}
+    existing = {r["_id"] for r in all_rfps}
     for rfp in new_rfps:
-        if rfp["_id"] not in existing_ids:
-            all_rfps.append(rfp)
-    all_rfps.sort(key=lambda r: r.get("_found_date", ""), reverse=True)
+        if rfp["_id"] not in existing: all_rfps.append(rfp)
+    all_rfps.sort(key=lambda r: r.get("_found_date",""), reverse=True)
     save_all_rfps(all_rfps)
 
-    git_push_seen()
-
-    html = build_email_html(new_rfps, run_date, len(AGENCIES))
-    send_email(html, len(new_rfps), run_date)
-
+    git_push()
+    send_email(build_email(new_rfps, run_date), len(new_rfps), run_date)
     print("\nDone.")
 
 
