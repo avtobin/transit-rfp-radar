@@ -299,6 +299,32 @@
     "fit": "good"
   },
   {
+    "title": "Bus Operating Facility IT Rehab",
+    "summary": "Information technology rehabilitation and upgrades at Houston Metro bus operating facility. Procurement via DIR (Texas Department of Information Resources).",
+    "deadline": "Not specified",
+    "rfp_number": "Not specified",
+    "category": "om",
+    "url": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities",
+    "agency": "Houston Metro",
+    "agency_id": "houston",
+    "_id": "f9bb205b37bdc2357794152d",
+    "_found_date": "2026-06-08",
+    "fit": "monitor"
+  },
+  {
+    "title": "Leadership Development Program",
+    "summary": "RFP for leadership development and training program services for Houston Metro staff and management.",
+    "deadline": "Not specified",
+    "rfp_number": "Not specified",
+    "category": "adv",
+    "url": "https://www.ridemetro.org/about/business-to-business/procurement-opportunities",
+    "agency": "Houston Metro",
+    "agency_id": "houston",
+    "_id": "b128459a6d523ba82436c95c",
+    "_found_date": "2026-06-08",
+    "fit": "monitor"
+  },
+  {
     "title": "Management Consulting",
     "summary": "RFP soliciting management consulting firms to provide as-needed advisory and consulting services in corporate strategy, business process optimization, and transportation operations strategy. Five-year agreements with multiple firms as a pool to serve the MTA on an as-needed basis.",
     "deadline": "Jun 12 2026",
